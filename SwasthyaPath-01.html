@@ -300,6 +300,24 @@ body{
 .fc-name{font-family:'Outfit',sans-serif;font-size:14px;font-weight:700;color:var(--text);margin-bottom:2px;line-height:1.2;}
 .fc-level{font-size:11px;color:var(--accent);font-weight:500;}
 .fc-dist{font-size:11px;color:var(--text-s);margin-top:2px;}
+.care-meta{
+  border-top:1px solid rgba(82,183,136,0.12);
+  border-bottom:1px solid rgba(82,183,136,0.12);
+  padding:10px 0;margin:10px 0 11px;
+  display:grid;gap:10px;
+}
+.cm-label{
+  font-size:9px;color:var(--text-d);font-weight:700;
+  letter-spacing:0.09em;text-transform:uppercase;margin-bottom:4px;
+}
+.opd-count,.doc-name{
+  font-family:'Outfit',sans-serif;font-size:12px;font-weight:700;
+  color:var(--text);line-height:1.25;
+}
+.opd-list,.doc-detail{
+  font-size:10px;color:var(--text-s);line-height:1.55;margin-top:3px;
+}
+.doc-detail strong{color:var(--accent-b);font-weight:600;}
 .tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:11px;}
 .tag{padding:3px 8px;border-radius:5px;font-size:10px;font-weight:500;}
 .tg{background:rgba(45,106,79,0.3);color:#74C69D;}
@@ -673,14 +691,14 @@ body{
 const USER_LAT = 20.2961, USER_LNG = 85.8245; // Master Canteen / Central Bhubaneswar
 
 const FACS = {
-  hwc_lingaraj:  {n:"HWC Lingaraj Ward", level:0, lname:"Health & Wellness Centre", lat:20.2393, lng:85.8266, dist:"3.2 km", addr:"Lingaraj Nagar, BBSR", phone:"0674-2361000", hrs:"8AM–4PM", tags:["gov","asha"], ico:"🏡", svcs:["General OPD","Immunisation","ASHA Referral"]},
-  phc_unit1:     {n:"Urban PHC, Unit-1",  level:1, lname:"Primary Health Centre",    lat:20.2637, lng:85.8417, dist:"2.8 km", addr:"Unit-1, Bhubaneswar 751001", phone:"0674-2530100", hrs:"8AM–8PM", tags:["gov","free"],     ico:"🏥", svcs:["General OPD","Maternal Care","Child Health","Free Medicines"]},
-  phc_lingaraj:  {n:"PHC Lingaraj",       level:1, lname:"Primary Health Centre",    lat:20.2430, lng:85.8350, dist:"3.9 km", addr:"Lingaraj, Bhubaneswar",       phone:"0674-2310422", hrs:"8AM–6PM", tags:["gov"],            ico:"🏥", svcs:["General OPD","Immunisation","NHM Services"]},
-  chc_aiginia:   {n:"CHC Aiginia",         level:2, lname:"Community Health Centre",  lat:20.3015, lng:85.7982, dist:"5.4 km", addr:"Aiginia, Bhubaneswar",         phone:"0674-2351200", hrs:"24×7",   tags:["gov","24x7","surg"],ico:"🏨", svcs:["Emergency","Surgery","Specialist OPD","Laboratory","Blood Tests"]},
-  capital:       {n:"Capital Hospital",    level:3, lname:"District Hospital",        lat:20.2810, lng:85.8397, dist:"2.0 km", addr:"Unit-6, Bhubaneswar 751001",   phone:"0674-2392640", hrs:"24×7",   tags:["gov","24x7","emg"], ico:"🏛️", svcs:["Emergency Ward","Surgery","Specialist OPD","ICU","Blood Bank","X-Ray"]},
-  mch_capital:   {n:"MCH Wing, Capital Hospital", level:3, lname:"Maternity & Child Hospital", lat:20.2820, lng:85.8410, dist:"2.0 km", addr:"Unit-6, Bhubaneswar 751001", phone:"0674-2392640", hrs:"24×7", tags:["gov","24x7","mat"],ico:"🏥", svcs:["Delivery","NICU","Gynecology","Paediatric Ward","High-Risk OPD"]},
-  aiims:         {n:"AIIMS Bhubaneswar",   level:4, lname:"State Apex — AIIMS",       lat:20.1530, lng:85.6762, dist:"18 km · Sijua", addr:"Sijua, Patrapada, BBSR 751019", phone:"0674-2476789", hrs:"24×7", tags:["gov","24x7","super"],ico:"🏫", svcs:["Super Specialty","Trauma Centre","ICU","Oncology","Cardiology","Research"]},
-  scb:           {n:"SCB Medical College", level:4, lname:"State Apex Hospital",      lat:20.4756, lng:85.8827, dist:"28 km · Cuttack", addr:"Manglabag, Cuttack 753007",    phone:"0671-2414238", hrs:"24×7", tags:["gov","24x7","super"],ico:"🏫", svcs:["Super Specialty","Burn Unit","Trauma","Neurology","Nephrology"]},
+  hwc_lingaraj:  {n:"HWC Lingaraj Ward", level:0, lname:"Health & Wellness Centre", lat:20.2393, lng:85.8266, dist:"3.2 km", addr:"Lingaraj Nagar, BBSR", phone:"0674-2361000", hrs:"8AM–4PM", tags:["gov","asha"], ico:"🏡", svcs:["General OPD","Immunisation","ASHA Referral"], opds:["General OPD","Immunisation","ASHA counselling"], doctors:{general:{name:"Dr. R. Mishra", role:"Community Health Officer", opd:"General OPD", time:"9 AM–1 PM"}}},
+  phc_unit1:     {n:"Urban PHC, Unit-1",  level:1, lname:"Primary Health Centre",    lat:20.2637, lng:85.8417, dist:"2.8 km", addr:"Unit-1, Bhubaneswar 751001", phone:"0674-2530100", hrs:"8AM–8PM", tags:["gov","free"],     ico:"🏥", svcs:["General OPD","Maternal Care","Child Health","Free Medicines"], opds:["General Medicine","Maternal Care","Child Health","NCD / Chronic Care"], doctors:{general:{name:"Dr. Ananya Das", role:"Medical Officer", opd:"General Medicine OPD", time:"10 AM–2 PM"}, fever:{name:"Dr. Ananya Das", role:"Medical Officer", opd:"General Medicine OPD", time:"10 AM–2 PM"}, maternal:{name:"Dr. Priya Sahoo", role:"Maternal Health MO", opd:"ANC / Maternal OPD", time:"9 AM–1 PM"}, chronic:{name:"Dr. Vivek Rath", role:"NCD Clinic Lead", opd:"NCD / Chronic Care OPD", time:"11 AM–3 PM"}}},
+  phc_lingaraj:  {n:"PHC Lingaraj",       level:1, lname:"Primary Health Centre",    lat:20.2430, lng:85.8350, dist:"3.9 km", addr:"Lingaraj, Bhubaneswar",       phone:"0674-2310422", hrs:"8AM–6PM", tags:["gov"],            ico:"🏥", svcs:["General OPD","Immunisation","NHM Services"], opds:["General OPD","Child Health","Immunisation"], doctors:{general:{name:"Dr. S. Patnaik", role:"Medical Officer", opd:"General OPD", time:"9 AM–1 PM"}, child:{name:"Dr. S. Patnaik", role:"Child Health MO", opd:"Child Health OPD", time:"10 AM–1 PM"}, fever:{name:"Dr. S. Patnaik", role:"Medical Officer", opd:"General OPD", time:"9 AM–1 PM"}}},
+  chc_aiginia:   {n:"CHC Aiginia",         level:2, lname:"Community Health Centre",  lat:20.3015, lng:85.7982, dist:"5.4 km", addr:"Aiginia, Bhubaneswar",         phone:"0674-2351200", hrs:"24×7",   tags:["gov","24x7","surg"],ico:"🏨", svcs:["Emergency","Surgery","Specialist OPD","Laboratory","Blood Tests"], opds:["General Medicine","Surgery","Paediatrics","Emergency","Laboratory"], doctors:{general:{name:"Dr. Arjun Mohanty", role:"Medicine Specialist", opd:"General Medicine OPD", time:"10 AM–4 PM"}, fever:{name:"Dr. Arjun Mohanty", role:"Medicine Specialist", opd:"General Medicine OPD", time:"10 AM–4 PM"}, injury:{name:"Dr. Meera Nayak", role:"Surgery Officer", opd:"Surgery / Trauma OPD", time:"24×7 emergency desk"}, child:{name:"Dr. Kunal Pradhan", role:"Paediatric MO", opd:"Paediatrics OPD", time:"10 AM–2 PM"}, chronic:{name:"Dr. Arjun Mohanty", role:"Medicine Specialist", opd:"NCD Follow-up OPD", time:"11 AM–3 PM"}}},
+  capital:       {n:"Capital Hospital",    level:3, lname:"District Hospital",        lat:20.2810, lng:85.8397, dist:"2.0 km", addr:"Unit-6, Bhubaneswar 751001",   phone:"0674-2392640", hrs:"24×7",   tags:["gov","24x7","emg"], ico:"🏛️", svcs:["Emergency Ward","Surgery","Specialist OPD","ICU","Blood Bank","X-Ray"], opds:["Emergency Medicine","General Medicine","Orthopaedics","Paediatrics","Surgery","Radiology"], doctors:{general:{name:"Dr. Sandeep Tripathy", role:"Emergency Physician", opd:"Emergency / Medicine OPD", time:"24×7 triage"}, emergency:{name:"Dr. Sandeep Tripathy", role:"Emergency Physician", opd:"Emergency Ward", time:"24×7 triage"}, injury:{name:"Dr. Nisha Kar", role:"Orthopaedic Surgeon", opd:"Orthopaedics OPD", time:"10 AM–2 PM"}, fever:{name:"Dr. B. K. Panda", role:"Medicine Consultant", opd:"General Medicine OPD", time:"10 AM–3 PM"}, child:{name:"Dr. Kunal Pradhan", role:"Paediatric Consultant", opd:"Paediatrics OPD", time:"10 AM–2 PM"}, chronic:{name:"Dr. B. K. Panda", role:"Medicine Consultant", opd:"NCD / Medicine OPD", time:"11 AM–3 PM"}}},
+  mch_capital:   {n:"MCH Wing, Capital Hospital", level:3, lname:"Maternity & Child Hospital", lat:20.2820, lng:85.8410, dist:"2.0 km", addr:"Unit-6, Bhubaneswar 751001", phone:"0674-2392640", hrs:"24×7", tags:["gov","24x7","mat"],ico:"🏥", svcs:["Delivery","NICU","Gynecology","Paediatric Ward","High-Risk OPD"], opds:["Obstetrics","Gynaecology","High-Risk Pregnancy","NICU","Paediatrics"], doctors:{general:{name:"Dr. Kavita Sahoo", role:"Obstetrician", opd:"Obstetrics OPD", time:"9 AM–2 PM"}, maternal:{name:"Dr. Kavita Sahoo", role:"Obstetrician", opd:"High-Risk Pregnancy OPD", time:"9 AM–2 PM"}, emergency:{name:"Dr. Kavita Sahoo", role:"Emergency Obstetrician", opd:"Labour Room / Emergency", time:"24×7"}}},
+  aiims:         {n:"AIIMS Bhubaneswar",   level:4, lname:"State Apex — AIIMS",       lat:20.1530, lng:85.6762, dist:"18 km · Sijua", addr:"Sijua, Patrapada, BBSR 751019", phone:"0674-2476789", hrs:"24×7", tags:["gov","24x7","super"],ico:"🏫", svcs:["Super Specialty","Trauma Centre","ICU","Oncology","Cardiology","Research"], opds:["Trauma & Emergency","General Medicine","Neurology","Cardiology","Orthopaedics","ICU Referral"], doctors:{general:{name:"Dr. Rohan Behera", role:"Senior Resident", opd:"General Medicine OPD", time:"Referral hours"}, emergency:{name:"Dr. Rohan Behera", role:"Emergency Medicine SR", opd:"Trauma & Emergency", time:"24×7 emergency desk"}, injury:{name:"Dr. Neha Samal", role:"Trauma Specialist", opd:"Trauma / Orthopaedics OPD", time:"Referral hours"}, chronic:{name:"Dr. Rohan Behera", role:"Medicine SR", opd:"Specialty Medicine OPD", time:"Referral hours"}, fever:{name:"Dr. Rohan Behera", role:"Medicine SR", opd:"General Medicine OPD", time:"Referral hours"}}},
+  scb:           {n:"SCB Medical College", level:4, lname:"State Apex Hospital",      lat:20.4756, lng:85.8827, dist:"28 km · Cuttack", addr:"Manglabag, Cuttack 753007",    phone:"0671-2414238", hrs:"24×7", tags:["gov","24x7","super"],ico:"🏫", svcs:["Super Specialty","Burn Unit","Trauma","Neurology","Nephrology"], opds:["Trauma & Emergency","Burn Unit","Neurology","Nephrology","Obstetrics","Surgery"], doctors:{general:{name:"Dr. L. Das", role:"Senior Consultant", opd:"Specialty OPD", time:"Referral hours"}, emergency:{name:"Dr. L. Das", role:"Emergency Consultant", opd:"Trauma & Emergency", time:"24×7 emergency desk"}, injury:{name:"Dr. L. Das", role:"Trauma Consultant", opd:"Trauma OPD", time:"24×7 emergency desk"}, maternal:{name:"Dr. P. Mohanty", role:"Obstetrics Consultant", opd:"Obstetrics OPD", time:"Referral hours"}, chronic:{name:"Dr. R. Nayak", role:"Medicine Consultant", opd:"Specialty Medicine OPD", time:"Referral hours"}}},
 };
 
 const LADDER = ["HWC / ASHA Village","Primary Health Centre (PHC)","Community Health Centre (CHC)","District / MCH Hospital","State Apex — AIIMS / SCB"];
@@ -863,7 +881,12 @@ function patientContextText(){
   return bits.length?`\n\nPatient details: ${bits.join(' · ')}`:'';
 }
 
-function fCardHTML(f){
+function doctorFor(f, issue){
+  if(!f.doctors) return null;
+  return f.doctors[issue]||f.doctors.general||Object.values(f.doctors)[0];
+}
+
+function fCardHTML(f, issue=selIssue){
   const tagHTML=f.tags.map(t=>{
     if(t==='gov')return'<span class="tag tg">Government · Free</span>';
     if(t==='24x7')return'<span class="tag t2">24×7 Open</span>';
@@ -875,6 +898,15 @@ function fCardHTML(f){
     if(t==='free')return'<span class="tag tg">Free Medicines</span>';
     return'';
   }).join('');
+  const opds=f.opds||f.svcs||[];
+  const opdText=opds.length?opds.join(' · '):'OPD information will be confirmed at reception';
+  const doctor=doctorFor(f,issue);
+  const doctorHTML=doctor?`
+    <div class="care-meta-block">
+      <div class="cm-label">Recommended Doctor</div>
+      <div class="doc-name">${doctor.name}</div>
+      <div class="doc-detail"><strong>${doctor.role}</strong> · ${doctor.opd} · ${doctor.time}</div>
+    </div>`:'';
   return`<div class="fc-row">
     <div class="fc-ico">${f.ico}</div>
     <div class="fc-info">
@@ -884,6 +916,14 @@ function fCardHTML(f){
     </div>
   </div>
   <div class="tags">${tagHTML}</div>
+  <div class="care-meta">
+    <div class="care-meta-block">
+      <div class="cm-label">OPD Availability</div>
+      <div class="opd-count">${opds.length} OPDs available</div>
+      <div class="opd-list">${opdText}</div>
+    </div>
+    ${doctorHTML}
+  </div>
   <div class="fbtns">
     <button class="fbtn fcall">📞 ${f.phone}</button>
     <button class="fbtn fdir">🗺️ Directions</button>
@@ -1075,8 +1115,8 @@ function search(){
 
     // populate results
     document.getElementById('emergBar').classList.toggle('show',s.emg);
-    document.getElementById('primaryCard').innerHTML=fCardHTML(pFac);
-    document.getElementById('referralCard').innerHTML=fCardHTML(rFac);
+    document.getElementById('primaryCard').innerHTML=fCardHTML(pFac,selIssue);
+    document.getElementById('referralCard').innerHTML=fCardHTML(rFac,selIssue);
     document.getElementById('teleStrip').style.display=s.tele?'flex':'none';
     document.getElementById('ladderEl').innerHTML=buildLadder(s.p,s.r);
 
