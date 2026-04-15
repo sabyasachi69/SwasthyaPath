@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>SwasthyaPath — Health Navigation, Odisha</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --sb:#0B1A11;
+  --sb2:#0F2118;
+  --card:#132B1C;
+  --card2:#1A3626;
+  --border:rgba(82,183,136,0.12);
+  --border2:rgba(82,183,136,0.22);
+  --accent:#52B788;
+  --accent-d:#2D6A4F;
+  --accent-b:#74C69D;
+  --accent-s:rgba(82,183,136,0.09);
+  --text:#EDE9E3;
+  --text-s:#8FAF9A;
+  --text-d:#3D5A47;
+  --emergency:#E07A5F;
+  --emerg-s:rgba(224,122,95,0.08);
+  --gold:#E9C46A;
+  --gold-s:rgba(233,196,106,0.08);
+  --r:12px;
+}
+html,body{height:100%;overflow:hidden;}
+body{
+  font-family:'DM Sans',sans-serif;
+  display:flex;background:#1a2e20;
+}
+
+/* ─── INTRO INTAKE ─── */
+#intro-screen{
+  position:fixed;inset:0;z-index:3000;
+  background:linear-gradient(135deg,#0B1A11 0%,#132B1C 52%,#183722 100%);
+  display:flex;align-items:center;justify-content:center;
+  padding:28px;overflow-y:auto;
+  transition:opacity 0.28s ease,visibility 0.28s ease;
+}
+#intro-screen.hide{opacity:0;visibility:hidden;pointer-events:none;}
+.intro-shell{
+  width:min(980px,100%);
+  display:grid;grid-template-columns:minmax(260px,0.9fr) minmax(360px,1.1fr);
+  gap:24px;align-items:stretch;
+}
+.intro-copy{
+  border:1px solid var(--border2);
+  border-radius:8px;padding:28px;
+  background:rgba(11,26,17,0.54);
+  display:flex;flex-direction:column;justify-content:space-between;
+  min-height:520px;
+}
+.intro-kicker{
+  color:var(--accent-b);font-size:11px;font-weight:700;
+  letter-spacing:0.12em;text-transform:uppercase;margin-bottom:14px;
+}
+.intro-copy h1{
+  font-family:'Outfit',sans-serif;font-size:44px;line-height:1;
+  color:var(--text);letter-spacing:-0.04em;margin-bottom:16px;
+}
+.intro-copy p{font-size:15px;line-height:1.7;color:var(--text-s);max-width:360px;}
+.intro-note{
+  margin-top:26px;border-top:1px solid var(--border);padding-top:18px;
+  font-size:12px;line-height:1.65;color:var(--text-s);
+}
+.intro-form{
+  background:rgba(15,33,24,0.86);
+  border:1px solid rgba(82,183,136,0.2);
+  border-radius:8px;padding:26px;
+  box-shadow:0 28px 80px rgba(0,0,0,0.35);
+}
+.intro-form h2{
+  font-family:'Outfit',sans-serif;font-size:25px;color:var(--text);
+  letter-spacing:-0.03em;margin-bottom:6px;
+}
+.intro-form p{font-size:13px;line-height:1.6;color:var(--text-s);margin-bottom:20px;}
+.intro-field{margin-bottom:18px;}
+.intro-field label,.intro-label{
+  display:block;font-size:10px;color:var(--text-d);font-weight:700;
+  letter-spacing:0.1em;text-transform:uppercase;margin-bottom:9px;
+}
+.intro-issues{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.intro-issue,.intro-urgency{
+  border:1.5px solid transparent;border-radius:8px;
+  background:var(--card);color:var(--text);
+  cursor:pointer;font-family:'DM Sans',sans-serif;
+  transition:all 0.17s ease;
+}
+.intro-issue{min-height:88px;padding:12px 8px;text-align:center;}
+.intro-issue:hover,.intro-urgency:hover{border-color:var(--accent-d);background:var(--card2);}
+.intro-issue.sel{border-color:var(--accent);background:rgba(82,183,136,0.1);}
+.intro-issue span:first-child{display:block;font-size:24px;margin-bottom:6px;}
+.intro-issue span:last-child{font-size:11px;font-weight:600;line-height:1.25;}
+.intro-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.intro-field select,.intro-field textarea{
+  width:100%;border:1px solid var(--border2);border-radius:8px;
+  background:#0B1A11;color:var(--text);
+  font-family:'DM Sans',sans-serif;font-size:13px;
+  outline:none;transition:border-color 0.15s ease;
+}
+.intro-field select{height:45px;padding:0 12px;}
+.intro-field textarea{min-height:94px;resize:vertical;padding:12px;line-height:1.5;}
+.intro-field select:focus,.intro-field textarea:focus{border-color:var(--accent);}
+.intro-urgencies{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.intro-urgency{padding:12px 8px;text-align:left;}
+.intro-urgency span:first-child{display:block;font-size:18px;margin-bottom:4px;}
+.intro-urgency strong{display:block;font-size:12px;color:var(--text);}
+.intro-urgency small{display:block;font-size:10px;color:var(--text-s);margin-top:2px;}
+.intro-urgency.sel[data-intro-urgency="routine"]{border-color:var(--accent);background:rgba(82,183,136,0.1);}
+.intro-urgency.sel[data-intro-urgency="urgent"]{border-color:var(--gold);background:rgba(233,196,106,0.1);}
+.intro-urgency.sel[data-intro-urgency="emergency"]{border-color:var(--emergency);background:rgba(224,122,95,0.1);}
+.intro-actions{display:flex;align-items:center;gap:12px;margin-top:6px;}
+.intro-actions .cta-btn{max-width:260px;border-radius:8px;}
+.intro-help{font-size:11px;color:var(--text-s);line-height:1.5;}
+
+/* ─── SIDEBAR ─── */
+#sb{
+  width:400px;min-width:400px;height:100vh;
+  background:var(--sb);
+  display:flex;flex-direction:column;
+  position:relative;z-index:100;
+  border-right:1px solid var(--border);
+  overflow:hidden;
+}
+
+/* sidebar header */
+.sb-head{
+  padding:22px 24px 18px;
+  border-bottom:1px solid var(--border);
+  flex-shrink:0;
+  background:var(--sb);
+}
+.logo{
+  display:flex;align-items:center;gap:10px;margin-bottom:14px;
+}
+.logo-mark{
+  width:34px;height:34px;
+  background:var(--accent);border-radius:9px;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.logo-mark svg{width:18px;height:18px;}
+.logo-name{
+  font-family:'Outfit',sans-serif;font-size:22px;
+  font-weight:800;color:var(--text);letter-spacing:-0.03em;
+}
+.logo-name span{color:var(--accent);}
+.loc-strip{
+  display:flex;align-items:center;gap:9px;
+  background:rgba(82,183,136,0.07);
+  border:1px solid var(--border2);
+  border-radius:30px;padding:9px 15px;
+}
+.loc-pulse{
+  width:8px;height:8px;border-radius:50%;
+  background:var(--accent);flex-shrink:0;
+  animation:pulse 2s ease infinite;
+}
+@keyframes pulse{
+  0%,100%{box-shadow:0 0 0 0 rgba(82,183,136,0.5);}
+  50%{box-shadow:0 0 0 5px rgba(82,183,136,0);}
+}
+.loc-text{flex:1;}
+.loc-label{font-size:10px;color:var(--text-d);font-weight:500;letter-spacing:0.06em;text-transform:uppercase;}
+.loc-val{font-size:13px;color:var(--text);font-weight:500;margin-top:1px;}
+#loc-status{font-size:10px;color:var(--accent);margin-top:1px;display:block;}
+
+/* sidebar body – scrollable */
+.sb-body{
+  flex:1;overflow-y:auto;overflow-x:hidden;
+  scrollbar-width:thin;scrollbar-color:var(--card) transparent;
+  padding:0;
+}
+.sb-body::-webkit-scrollbar{width:4px;}
+.sb-body::-webkit-scrollbar-thumb{background:var(--card);}
+
+/* input panel */
+#input-panel{padding:22px 24px;}
+.panel-title{
+  font-family:'Outfit',sans-serif;font-size:20px;
+  font-weight:700;color:var(--text);letter-spacing:-0.02em;
+  line-height:1.2;margin-bottom:4px;
+}
+.panel-sub{font-size:12px;color:var(--text-s);margin-bottom:22px;}
+.sec-label{
+  font-size:10px;color:var(--text-d);font-weight:500;
+  letter-spacing:0.08em;text-transform:uppercase;margin-bottom:10px;
+}
+/* issue grid */
+.issue-grid{
+  display:grid;grid-template-columns:1fr 1fr 1fr;
+  gap:7px;margin-bottom:20px;
+}
+.ic{
+  background:var(--card);border:1.5px solid transparent;
+  border-radius:11px;padding:13px 8px;cursor:pointer;
+  transition:all 0.17s ease;text-align:center;
+}
+.ic:hover{border-color:var(--accent-d);background:var(--card2);}
+.ic.sel{border-color:var(--accent);background:rgba(82,183,136,0.1);}
+.ic-e{font-size:24px;margin-bottom:5px;line-height:1;}
+.ic-n{font-size:11px;font-weight:500;color:var(--text);line-height:1.3;}
+/* urgency */
+.urg-row{display:flex;gap:7px;margin-bottom:22px;}
+.ub{
+  flex:1;padding:12px 6px;background:var(--card);
+  border:1.5px solid transparent;border-radius:11px;
+  cursor:pointer;text-align:center;
+  transition:all 0.17s ease;
+  font-family:'DM Sans',sans-serif;
+}
+.ub:hover{border-color:var(--accent-d);}
+.ub-e{display:block;font-size:20px;margin-bottom:4px;}
+.ub-l{font-size:11px;font-weight:500;color:var(--text-s);}
+.ub.sr{border-color:var(--accent);background:rgba(82,183,136,0.1);}
+.ub.sr .ub-l{color:var(--accent-b);}
+.ub.su{border-color:var(--gold);background:rgba(233,196,106,0.1);}
+.ub.su .ub-l{color:var(--gold);}
+.ub.se{border-color:var(--emergency);background:rgba(224,122,95,0.1);}
+.ub.se .ub-l{color:var(--emergency);}
+/* CTA */
+.cta-btn{
+  width:100%;padding:15px;border:none;
+  background:var(--accent);border-radius:12px;
+  font-family:'Outfit',sans-serif;font-size:15px;font-weight:800;
+  color:#071009;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  transition:all 0.18s ease;letter-spacing:0.01em;
+}
+.cta-btn:hover:not(:disabled){background:var(--accent-b);transform:translateY(-1px);}
+.cta-btn:disabled{background:var(--card2);color:var(--text-d);cursor:not-allowed;transform:none;}
+.cta-arrow{font-size:17px;transition:transform 0.2s;}
+.cta-btn:not(:disabled):hover .cta-arrow{transform:translateX(3px);}
+
+/* ── RESULTS PANEL ── */
+#results-panel{display:none;padding:20px 24px 30px;}
+/* advisor strip */
+.advisor{
+  background:rgba(82,183,136,0.07);
+  border:1px solid var(--border2);
+  border-radius:13px;padding:14px 15px;
+  margin-bottom:20px;
+}
+.adv-head{display:flex;align-items:center;gap:7px;margin-bottom:7px;}
+.adv-icon{
+  width:24px;height:24px;background:var(--accent);border-radius:6px;
+  display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;
+}
+.adv-title{font-size:11px;color:var(--accent-b);font-weight:600;letter-spacing:0.04em;text-transform:uppercase;}
+.adv-text{font-size:13px;color:var(--text-s);line-height:1.65;min-height:38px;white-space:pre-line;}
+.cursor-blink{
+  display:inline-block;width:1.5px;height:13px;
+  background:var(--accent);margin-left:2px;vertical-align:middle;
+  animation:blink 0.9s step-end infinite;
+}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0;}}
+/* emergency bar */
+.emerg-bar{
+  background:rgba(224,122,95,0.07);
+  border:1.5px solid rgba(224,122,95,0.35);
+  border-radius:13px;padding:13px 14px;
+  margin-bottom:16px;
+  display:none;align-items:center;gap:11px;
+  animation:ep 2s ease infinite;
+}
+.emerg-bar.show{display:flex;}
+@keyframes ep{0%,100%{border-color:rgba(224,122,95,0.3);}50%{border-color:rgba(224,122,95,0.7);}}
+.eb-ico{width:40px;height:40px;background:rgba(224,122,95,0.12);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0;}
+.eb-text{flex:1;}
+.eb-text strong{display:block;font-size:13px;font-weight:700;color:var(--emergency);font-family:'Outfit',sans-serif;}
+.eb-text small{font-size:10px;color:rgba(224,122,95,0.55);line-height:1.4;}
+.eb-cta{
+  background:var(--emergency);color:#fff;border:none;border-radius:9px;
+  padding:9px 13px;font-size:12px;font-weight:700;font-family:'Outfit',sans-serif;
+  cursor:pointer;white-space:nowrap;letter-spacing:0.02em;
+}
+/* facility card */
+.f-section{margin-bottom:16px;}
+.f-sec-lbl{font-size:10px;color:var(--text-d);font-weight:500;letter-spacing:0.09em;text-transform:uppercase;margin-bottom:8px;}
+.fcard{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:13px;padding:14px;
+  animation:slipin 0.35s ease both;
+}
+@keyframes slipin{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+.fcard.primary{border-color:rgba(82,183,136,0.3);background:rgba(82,183,136,0.05);}
+.fc-row{display:flex;align-items:flex-start;gap:12px;margin-bottom:10px;}
+.fc-ico{
+  width:42px;height:42px;border-radius:11px;
+  background:rgba(82,183,136,0.1);
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;flex-shrink:0;
+}
+.fc-info{flex:1;min-width:0;}
+.fc-name{font-family:'Outfit',sans-serif;font-size:14px;font-weight:700;color:var(--text);margin-bottom:2px;line-height:1.2;}
+.fc-level{font-size:11px;color:var(--accent);font-weight:500;}
+.fc-dist{font-size:11px;color:var(--text-s);margin-top:2px;}
+.tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:11px;}
+.tag{padding:3px 8px;border-radius:5px;font-size:10px;font-weight:500;}
+.tg{background:rgba(45,106,79,0.3);color:#74C69D;}
+.t2{background:rgba(82,183,136,0.1);color:var(--accent-b);border:1px solid rgba(82,183,136,0.18);}
+.te{background:rgba(224,122,95,0.1);color:#E07A5F;}
+.tm{background:rgba(233,196,106,0.1);color:var(--gold);}
+.fbtns{display:flex;gap:7px;}
+.fbtn{
+  flex:1;padding:9px;border-radius:9px;border:1px solid;
+  font-size:11px;font-weight:600;font-family:'DM Sans',sans-serif;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;
+  transition:all 0.15s;
+}
+.fcall{background:rgba(82,183,136,0.09);border-color:rgba(82,183,136,0.25);color:var(--accent-b);}
+.fcall:hover{background:rgba(82,183,136,0.18);}
+.fdir{background:rgba(255,255,255,0.02);border-color:rgba(255,255,255,0.08);color:var(--text-s);}
+.fdir:hover{background:rgba(255,255,255,0.06);color:var(--text);}
+/* teleconsult */
+.tele{
+  background:var(--gold-s);border:1px solid rgba(233,196,106,0.18);
+  border-radius:12px;padding:12px 14px;
+  display:flex;align-items:center;gap:10px;margin-bottom:16px;
+}
+.tele-i{font-size:19px;flex-shrink:0;}
+.tele-t{flex:1;}
+.tele-t strong{display:block;font-size:12px;color:var(--gold);font-weight:600;}
+.tele-t small{font-size:10px;color:rgba(233,196,106,0.5);}
+.tele-btn{
+  background:rgba(233,196,106,0.12);border:1px solid rgba(233,196,106,0.22);
+  color:var(--gold);border-radius:8px;padding:7px 11px;font-size:10px;
+  font-weight:700;cursor:pointer;white-space:nowrap;font-family:'Outfit',sans-serif;
+}
+/* care ladder */
+.ladder{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:13px;padding:14px 15px;
+}
+.ladder-hd{font-size:10px;color:var(--text-d);font-weight:500;letter-spacing:0.09em;text-transform:uppercase;margin-bottom:12px;}
+.ll{display:flex;align-items:center;gap:10px;padding:6px 0;position:relative;}
+.ll::after{content:'';position:absolute;left:9px;top:22px;width:1.5px;height:calc(100% + 2px);background:rgba(255,255,255,0.05);}
+.ll:last-child::after{display:none;}
+.ld{width:20px;height:20px;border-radius:50%;border:2px solid var(--card2);background:var(--sb);flex-shrink:0;display:flex;align-items:center;justify-content:center;z-index:1;}
+.ld-inner{width:8px;height:8px;border-radius:50%;background:var(--text-d);}
+.ll.la .ld{border-color:var(--accent);}
+.ll.la .ld-inner{background:var(--accent);}
+.ll.lr .ld{border-color:var(--gold);}
+.ll.lr .ld-inner{background:var(--gold);}
+.ll-name{flex:1;font-size:12px;color:var(--text-d);}
+.ll.la .ll-name{color:var(--accent-b);font-weight:500;}
+.ll.lr .ll-name{color:var(--gold);}
+.ll-tag{font-size:10px;padding:2px 7px;border-radius:4px;}
+.ll.la .ll-tag{background:rgba(82,183,136,0.1);color:var(--accent);}
+.ll.lr .ll-tag{background:rgba(233,196,106,0.1);color:var(--gold);}
+/* back btn */
+.back-btn{
+  display:flex;align-items:center;gap:5px;
+  background:none;border:none;color:var(--text-s);
+  font-size:12px;cursor:pointer;padding:0;margin-bottom:14px;
+  font-family:'DM Sans',sans-serif;transition:color 0.15s;
+}
+.back-btn:hover{color:var(--text);}
+
+/* ── LOADING OVERLAY ── */
+#loading{
+  position:absolute;inset:0;background:rgba(11,26,17,0.92);
+  z-index:50;display:none;
+  flex-direction:column;align-items:center;justify-content:center;gap:14px;
+}
+#loading.show{display:flex;}
+.ld-spin{
+  width:44px;height:44px;border:3px solid rgba(82,183,136,0.15);
+  border-top-color:var(--accent);border-radius:50%;
+  animation:spin 0.8s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg);}}
+.ld-txt{font-size:14px;color:var(--text-s);}
+
+/* ─── MAP ─── */
+#map-wrapper{
+  flex:1;position:relative;z-index:1;
+}
+#map{width:100%;height:100%;}
+
+/* leaflet customization */
+.leaflet-container{font-family:'DM Sans',sans-serif;}
+.leaflet-popup-content-wrapper{
+  background:#0F2118;color:#EDE9E3;
+  border-radius:12px;
+  border:1px solid rgba(82,183,136,0.22);
+  box-shadow:0 8px 32px rgba(0,0,0,0.5);
+  padding:0;
+}
+.leaflet-popup-content{margin:0;}
+.leaflet-popup-tip-container{display:none;}
+.leaflet-popup-close-button{color:#8FAF9A !important;top:8px;right:8px;}
+
+/* map info panel */
+#map-info{
+  position:absolute;top:16px;left:50%;transform:translateX(-50%);
+  z-index:400;display:none;
+  background:rgba(11,26,17,0.88);
+  border:1px solid rgba(82,183,136,0.22);
+  border-radius:30px;padding:8px 18px;
+  font-size:12px;color:#74C69D;font-weight:500;
+  backdrop-filter:blur(8px);
+  animation:fadedown 0.4s ease;white-space:nowrap;
+}
+#map-info.show{display:block;}
+@keyframes fadedown{from{opacity:0;transform:translateX(-50%) translateY(-8px);}to{opacity:1;transform:translateX(-50%) translateY(0);}}
+
+/* map legend */
+#map-legend{
+  position:absolute;bottom:20px;right:16px;z-index:400;
+  background:rgba(11,26,17,0.88);border:1px solid rgba(82,183,136,0.15);
+  border-radius:10px;padding:10px 13px;display:none;
+  backdrop-filter:blur(8px);
+}
+#map-legend.show{display:block;}
+.leg-title{font-size:9px;color:#3D5A47;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:7px;font-weight:500;}
+.leg-row{display:flex;align-items:center;gap:7px;margin-bottom:5px;font-size:11px;color:#8FAF9A;}
+.leg-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.leg-row:last-child{margin-bottom:0;}
+
+/* custom leaflet markers */
+@keyframes dropin{from{transform:translateY(-20px) scale(0.7);opacity:0;}to{transform:translateY(0) scale(1);opacity:1;}}
+.mrkr-wrap{animation:dropin 0.45s cubic-bezier(0.23,1,0.32,1) both;}
+
+/* layer toggle */
+#layer-toggle{
+  position:absolute;top:16px;right:16px;z-index:1000;
+  display:flex;gap:0;border-radius:10px;overflow:hidden;
+  border:1px solid rgba(82,183,136,0.25);
+  box-shadow:0 4px 16px rgba(0,0,0,0.35);
+  pointer-events:all;
+}
+.lt-btn{
+  padding:9px 14px;font-size:11px;font-weight:600;
+  font-family:'DM Sans',sans-serif;cursor:pointer;border:none;
+  transition:all 0.18s;letter-spacing:0.03em;
+  backdrop-filter:blur(8px);
+}
+.lt-btn.active{background:var(--accent);color:#071009;}
+.lt-btn:not(.active){background:rgba(11,26,17,0.85);color:var(--text-s);}
+.lt-btn:not(.active):hover{background:rgba(11,26,17,0.95);color:var(--text);}
+#lt-map{border-right:1px solid rgba(82,183,136,0.2);}
+
+
+/* pulse for user marker */
+@keyframes userping{0%,100%{transform:scale(1);opacity:0.6;}50%{transform:scale(1.6);opacity:0;}}
+
+/* map overlay loader */
+#map-spinner{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  display:none;z-index:300;
+  background:rgba(11,26,17,0.88);border-radius:16px;padding:20px 28px;
+  text-align:center;border:1px solid rgba(82,183,136,0.18);
+  backdrop-filter:blur(8px);
+}
+#map-spinner.show{display:block;}
+.ms-spin{width:36px;height:36px;border:3px solid rgba(82,183,136,0.15);border-top-color:#52B788;border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 10px;}
+.ms-txt{font-size:12px;color:#74C69D;}
+
+/* popup content */
+.pop{padding:13px 15px;}
+.pop-name{font-family:'Outfit',sans-serif;font-size:14px;font-weight:700;color:#EDE9E3;margin-bottom:2px;}
+.pop-level{font-size:11px;color:#52B788;font-weight:500;}
+.pop-dist{font-size:11px;color:#6B9178;margin-top:4px;}
+.pop-phone{font-size:11px;color:#6B9178;margin-top:2px;}
+
+@media (max-width:760px){
+  #intro-screen{padding:18px;}
+  .intro-shell{grid-template-columns:1fr;}
+  .intro-copy{min-height:auto;padding:22px;}
+  .intro-copy h1{font-size:34px;}
+  .intro-form{padding:20px;}
+  .intro-issues{grid-template-columns:repeat(2,1fr);}
+  .intro-row,.intro-urgencies{grid-template-columns:1fr;}
+  .intro-actions{align-items:stretch;flex-direction:column;}
+  .intro-actions .cta-btn{max-width:none;}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ INTRO INTAKE ═══ -->
+<section id="intro-screen" aria-label="Health intake">
+  <div class="intro-shell">
+    <div class="intro-copy">
+      <div>
+        <div class="intro-kicker">SwasthyaPath Intake</div>
+        <h1>Tell us what care you need.</h1>
+        <p>Share your concern and urgency. The map will open with a recommended first stop, referral option, and road route.</p>
+      </div>
+      <div class="intro-note">
+        For severe symptoms, trouble breathing, chest pain, heavy bleeding, stroke signs, or pregnancy emergency, call 108 immediately.
+      </div>
+    </div>
+    <form class="intro-form" id="introForm" onsubmit="event.preventDefault(); startMainPage();">
+      <h2>Health details</h2>
+      <p>Choose the closest match. You can still start a new search from the main page.</p>
+
+      <div class="intro-field">
+        <div class="intro-label">Health Concern</div>
+        <div class="intro-issues">
+          <button type="button" class="intro-issue" data-intro-issue="fever" onclick="pickIntroIssue(this,'fever')"><span>🤒</span><span>Fever &amp; Infection</span></button>
+          <button type="button" class="intro-issue" data-intro-issue="injury" onclick="pickIntroIssue(this,'injury')"><span>🤕</span><span>Injury &amp; Trauma</span></button>
+          <button type="button" class="intro-issue" data-intro-issue="maternal" onclick="pickIntroIssue(this,'maternal')"><span>🤰</span><span>Maternal Care</span></button>
+          <button type="button" class="intro-issue" data-intro-issue="child" onclick="pickIntroIssue(this,'child')"><span>👶</span><span>Child Health</span></button>
+          <button type="button" class="intro-issue" data-intro-issue="chronic" onclick="pickIntroIssue(this,'chronic')"><span>💊</span><span>Chronic Illness</span></button>
+          <button type="button" class="intro-issue" data-intro-issue="emergency" onclick="pickIntroIssue(this,'emergency')"><span>🆘</span><span>Emergency</span></button>
+        </div>
+      </div>
+
+      <div class="intro-row">
+        <div class="intro-field">
+          <label for="introAge">Patient</label>
+          <select id="introAge">
+            <option value="">Select age group</option>
+            <option>Child</option>
+            <option>Adult</option>
+            <option>Senior citizen</option>
+            <option>Pregnant patient</option>
+          </select>
+        </div>
+        <div class="intro-field">
+          <div class="intro-label">Urgency Level</div>
+          <div class="intro-urgencies">
+            <button type="button" class="intro-urgency" data-intro-urgency="routine" onclick="pickIntroUrgency(this,'routine')"><span>🟢</span><strong>Routine</strong><small>Can wait</small></button>
+            <button type="button" class="intro-urgency" data-intro-urgency="urgent" onclick="pickIntroUrgency(this,'urgent')"><span>🟡</span><strong>Urgent</strong><small>Today</small></button>
+            <button type="button" class="intro-urgency" data-intro-urgency="emergency" onclick="pickIntroUrgency(this,'emergency')"><span>🔴</span><strong>Emergency</strong><small>Now</small></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="intro-field">
+        <label for="introSymptoms">Symptoms or notes</label>
+        <textarea id="introSymptoms" maxlength="180" placeholder="Example: fever for 2 days, vomiting, pain, injury location..."></textarea>
+      </div>
+
+      <div class="intro-actions">
+        <button class="cta-btn" id="introContinue" type="submit" disabled>
+          <span>Open Care Map</span>
+          <span class="cta-arrow">→</span>
+        </button>
+        <div class="intro-help">Your details stay on this page and help tailor the recommendation text.</div>
+      </div>
+    </form>
+  </div>
+</section>
+
+<!-- ═══ SIDEBAR ═══ -->
+<div id="sb">
+  <div class="sb-head">
+    <div class="logo">
+      <div class="logo-mark">
+        <svg viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M9 1C4.58 1 1 4.58 1 9c0 5.5 8 9 8 9s8-3.5 8-9c0-4.42-3.58-8-8-8z" fill="#0B1A11"/>
+          <circle cx="9" cy="9" r="3.5" fill="#0B1A11"/>
+          <path d="M9 5.5v7M5.5 9h7" stroke="#52B788" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="logo-name">Swasthya<span>Path</span></div>
+    </div>
+    <div class="loc-strip">
+      <div class="loc-pulse" id="locPulse"></div>
+      <div class="loc-text">
+        <div class="loc-label">Current Location</div>
+        <div class="loc-val" id="locVal">Detecting…</div>
+        <span id="loc-status">Acquiring GPS signal</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="sb-body">
+    <!-- INPUT PANEL -->
+    <div id="input-panel">
+      <div class="panel-title">What brings you<br>here today?</div>
+      <div class="panel-sub">Select your health concern and urgency to find the right care.</div>
+      <div class="sec-label">Health Concern</div>
+      <div class="issue-grid">
+        <div class="ic" data-issue="fever" onclick="pickIssue(this,'fever')"><div class="ic-e">🤒</div><div class="ic-n">Fever &amp; Infection</div></div>
+        <div class="ic" data-issue="injury" onclick="pickIssue(this,'injury')"><div class="ic-e">🤕</div><div class="ic-n">Injury &amp; Trauma</div></div>
+        <div class="ic" data-issue="maternal" onclick="pickIssue(this,'maternal')"><div class="ic-e">🤰</div><div class="ic-n">Maternal Care</div></div>
+        <div class="ic" data-issue="child" onclick="pickIssue(this,'child')"><div class="ic-e">👶</div><div class="ic-n">Child Health</div></div>
+        <div class="ic" data-issue="chronic" onclick="pickIssue(this,'chronic')"><div class="ic-e">💊</div><div class="ic-n">Chronic Illness</div></div>
+        <div class="ic" data-issue="emergency" onclick="pickIssue(this,'emergency')"><div class="ic-e">🆘</div><div class="ic-n">Emergency</div></div>
+      </div>
+      <div class="sec-label">Urgency Level</div>
+      <div class="urg-row">
+        <button class="ub" id="ubr" onclick="pickUrgency('routine')"><span class="ub-e">🟢</span><span class="ub-l">Routine</span></button>
+        <button class="ub" id="ubu" onclick="pickUrgency('urgent')"><span class="ub-e">🟡</span><span class="ub-l">Urgent</span></button>
+        <button class="ub" id="ube" onclick="pickUrgency('emergency')"><span class="ub-e">🔴</span><span class="ub-l">Emergency</span></button>
+      </div>
+      <button class="cta-btn" id="ctaBtn" disabled onclick="search()">
+        <span>Find My Care Path</span>
+        <span class="cta-arrow">→</span>
+      </button>
+    </div>
+
+    <!-- RESULTS PANEL -->
+    <div id="results-panel">
+      <button class="back-btn" onclick="goBack()">← New Search</button>
+      <div class="advisor">
+        <div class="adv-head">
+          <div class="adv-icon">🩺</div>
+          <div class="adv-title">Health Navigator</div>
+        </div>
+        <div class="adv-text" id="adv-text"></div>
+      </div>
+      <div class="emerg-bar" id="emergBar">
+        <div class="eb-ico">🚑</div>
+        <div class="eb-text">
+          <strong>Emergency — Call 108 Now</strong>
+          <small>Odisha 108 Ambulance · Average arrival 8–12 min from Bhubaneswar city</small>
+        </div>
+        <button class="eb-cta">Call 108</button>
+      </div>
+      <div class="f-section">
+        <div class="f-sec-lbl">Recommended First Stop</div>
+        <div class="fcard primary" id="primaryCard"></div>
+      </div>
+      <div class="f-section" id="referralSection">
+        <div class="f-sec-lbl">If Referred — Go Next To</div>
+        <div class="fcard" id="referralCard" style="animation-delay:0.1s;"></div>
+      </div>
+      <div class="tele" id="teleStrip" style="display:none;">
+        <span class="tele-i">📡</span>
+        <div class="tele-t">
+          <strong>eSanjeevani Teleconsult Available</strong>
+          <small>Virtual OPD · No travel needed for follow-ups</small>
+        </div>
+        <button class="tele-btn">Join OPD →</button>
+      </div>
+      <div class="ladder">
+        <div class="ladder-hd">Care Chain — Your Path</div>
+        <div id="ladderEl"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- sidebar loader -->
+  <div id="loading">
+    <div class="ld-spin"></div>
+    <div class="ld-txt" id="loadTxt">Scanning nearby facilities…</div>
+  </div>
+</div>
+
+<!-- ═══ MAP ═══ -->
+<div id="map-wrapper">
+  <div id="map"></div>
+  <div id="layer-toggle">
+    <button class="lt-btn active" id="lt-map" onclick="setLayer('map')">🗺️ Map</button>
+    <button class="lt-btn" id="lt-sat" onclick="setLayer('satellite')">🛰️ Satellite</button>
+  </div>
+  <div id="map-info"></div>
+  <div id="map-spinner"><div class="ms-spin"></div><div class="ms-txt">Plotting route…</div></div>
+  <div id="map-legend">
+    <div class="leg-title">Map Legend</div>
+    <div class="leg-row"><div class="leg-dot" style="background:#52B788;box-shadow:0 0 0 3px rgba(82,183,136,0.2);"></div>Your Location</div>
+    <div class="leg-row"><div class="leg-dot" style="background:#52B788;"></div>First Facility</div>
+    <div class="leg-row"><div class="leg-dot" style="background:#E9C46A;"></div>Referral Facility</div>
+    <div class="leg-row"><div style="width:22px;height:3px;background:#52B788;border-radius:2px;flex-shrink:0;"></div>Route to First</div>
+    <div class="leg-row"><div style="width:22px;height:3px;background:#E9C46A;border-radius:2px;flex-shrink:0;border-top:2px dashed #E9C46A;background:transparent;"></div>Route to Referral</div>
+    <div class="leg-row"><div class="leg-dot" style="background:#808080;opacity:0.5;"></div>Other Facilities</div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+// ─── DATA ───────────────────────────────────────────────────────────────────
+const USER_LAT = 20.2961, USER_LNG = 85.8245; // Master Canteen / Central Bhubaneswar
+
+const FACS = {
+  hwc_lingaraj:  {n:"HWC Lingaraj Ward", level:0, lname:"Health & Wellness Centre", lat:20.2393, lng:85.8266, dist:"3.2 km", addr:"Lingaraj Nagar, BBSR", phone:"0674-2361000", hrs:"8AM–4PM", tags:["gov","asha"], ico:"🏡", svcs:["General OPD","Immunisation","ASHA Referral"]},
+  phc_unit1:     {n:"Urban PHC, Unit-1",  level:1, lname:"Primary Health Centre",    lat:20.2637, lng:85.8417, dist:"2.8 km", addr:"Unit-1, Bhubaneswar 751001", phone:"0674-2530100", hrs:"8AM–8PM", tags:["gov","free"],     ico:"🏥", svcs:["General OPD","Maternal Care","Child Health","Free Medicines"]},
+  phc_lingaraj:  {n:"PHC Lingaraj",       level:1, lname:"Primary Health Centre",    lat:20.2430, lng:85.8350, dist:"3.9 km", addr:"Lingaraj, Bhubaneswar",       phone:"0674-2310422", hrs:"8AM–6PM", tags:["gov"],            ico:"🏥", svcs:["General OPD","Immunisation","NHM Services"]},
+  chc_aiginia:   {n:"CHC Aiginia",         level:2, lname:"Community Health Centre",  lat:20.3015, lng:85.7982, dist:"5.4 km", addr:"Aiginia, Bhubaneswar",         phone:"0674-2351200", hrs:"24×7",   tags:["gov","24x7","surg"],ico:"🏨", svcs:["Emergency","Surgery","Specialist OPD","Laboratory","Blood Tests"]},
+  capital:       {n:"Capital Hospital",    level:3, lname:"District Hospital",        lat:20.2810, lng:85.8397, dist:"2.0 km", addr:"Unit-6, Bhubaneswar 751001",   phone:"0674-2392640", hrs:"24×7",   tags:["gov","24x7","emg"], ico:"🏛️", svcs:["Emergency Ward","Surgery","Specialist OPD","ICU","Blood Bank","X-Ray"]},
+  mch_capital:   {n:"MCH Wing, Capital Hospital", level:3, lname:"Maternity & Child Hospital", lat:20.2820, lng:85.8410, dist:"2.0 km", addr:"Unit-6, Bhubaneswar 751001", phone:"0674-2392640", hrs:"24×7", tags:["gov","24x7","mat"],ico:"🏥", svcs:["Delivery","NICU","Gynecology","Paediatric Ward","High-Risk OPD"]},
+  aiims:         {n:"AIIMS Bhubaneswar",   level:4, lname:"State Apex — AIIMS",       lat:20.1530, lng:85.6762, dist:"18 km · Sijua", addr:"Sijua, Patrapada, BBSR 751019", phone:"0674-2476789", hrs:"24×7", tags:["gov","24x7","super"],ico:"🏫", svcs:["Super Specialty","Trauma Centre","ICU","Oncology","Cardiology","Research"]},
+  scb:           {n:"SCB Medical College", level:4, lname:"State Apex Hospital",      lat:20.4756, lng:85.8827, dist:"28 km · Cuttack", addr:"Manglabag, Cuttack 753007",    phone:"0671-2414238", hrs:"24×7", tags:["gov","24x7","super"],ico:"🏫", svcs:["Super Specialty","Burn Unit","Trauma","Neurology","Nephrology"]},
+};
+
+const LADDER = ["HWC / ASHA Village","Primary Health Centre (PHC)","Community Health Centre (CHC)","District / MCH Hospital","State Apex — AIIMS / SCB"];
+
+const SCENARIOS = {
+  fever:    {routine:{p:"phc_unit1",    r:"chc_aiginia", emg:false,tele:false}, urgent:{p:"chc_aiginia",r:"capital",    emg:false,tele:false}, emergency:{p:"capital",r:"aiims",emg:true, tele:false}},
+  injury:   {routine:{p:"capital",     r:"aiims",       emg:false,tele:false}, urgent:{p:"capital",    r:"aiims",      emg:false,tele:false}, emergency:{p:"capital",r:"aiims",emg:true, tele:false}},
+  maternal: {routine:{p:"phc_unit1",   r:"mch_capital", emg:false,tele:true},  urgent:{p:"mch_capital",r:"scb",        emg:false,tele:false}, emergency:{p:"mch_capital",r:"scb",emg:true,tele:false}},
+  child:    {routine:{p:"phc_lingaraj",r:"chc_aiginia", emg:false,tele:true},  urgent:{p:"chc_aiginia",r:"capital",    emg:false,tele:false}, emergency:{p:"capital",r:"aiims",emg:true, tele:false}},
+  chronic:  {routine:{p:"phc_unit1",   r:"chc_aiginia", emg:false,tele:true},  urgent:{p:"chc_aiginia",r:"capital",    emg:false,tele:true},  emergency:{p:"capital",r:"aiims",emg:true, tele:false}},
+  emergency:{routine:{p:"capital",     r:"aiims",       emg:true, tele:false}, urgent:{p:"capital",    r:"aiims",      emg:true, tele:false}, emergency:{p:"capital",r:"aiims",emg:true, tele:false}},
+};
+
+const ADVICE = {
+  fever:{
+    routine:"Unit-1 PHC provides free OPD care under NHM — it's your most efficient first stop. A physician can prescribe medication and assess whether blood tests or further observation are needed.",
+    urgent:"Your symptoms warrant specialist evaluation and possible lab work. CHC Aiginia has a laboratory and physician specialists available — proceed promptly and carry any prior test reports.",
+    emergency:"High-priority case. Capital Hospital's 24×7 Emergency Wing handles critical fever presentations including sepsis, neurological symptoms, and dengue complications. Call 108 for fastest transport."
+  },
+  injury:{
+    routine:"Capital Hospital has an orthopaedic OPD and X-ray facility available daily. Bring any imaging done previously and arrive before 12 PM for shorter wait times.",
+    urgent:"This injury needs timely specialist review. Capital Hospital's emergency unit can handle fractures, deep lacerations, and spinal concerns with imaging support available round the clock.",
+    emergency:"Critical trauma — do not transport alone. Call 108 immediately. Capital Hospital has a staffed trauma bay; AIIMS Bhubaneswar handles complex neurosurgical or multi-organ trauma cases."
+  },
+  maternal:{
+    routine:"Unit-1 PHC provides free antenatal care under NHM including USG referrals and iron supplements. After 32 weeks or if any risk factor exists, proceed directly to MCH Wing, Capital Hospital.",
+    urgent:"MCH Wing at Capital Hospital is Odisha's primary referral for high-risk pregnancies — with NICU support and specialist gynaecologists available. Please reach the facility as soon as possible.",
+    emergency:"Obstetric emergency — call 102 (Janani Express, free ambulance for pregnant women) immediately. MCH Wing manages all emergency deliveries and obstetric complications 24×7."
+  },
+  child:{
+    routine:"Lingaraj PHC has dedicated child health services including ASHA workers, immunisation, and NRC support for children under 5. Free medicines are available under the national programme.",
+    urgent:"CHC Aiginia has paediatric OPD and can manage children needing IV fluids, nebulisation, or observation. Early attention to febrile children prevents complications significantly.",
+    emergency:"Paediatric emergency — Capital Hospital has a dedicated Children's Ward with resuscitation capability. AIIMS Bhubaneswar has a full PICU for critical neonatal and paediatric cases."
+  },
+  chronic:{
+    routine:"Unit-1 PHC is registered under NHM's free medicine scheme for chronic disease management — diabetes, hypertension, and COPD. Carry your current prescription and past lab reports.",
+    urgent:"An acute exacerbation needs specialist review and rapid diagnostics. CHC Aiginia has general medicine specialists, a laboratory, and monitoring capability for stabilisation.",
+    emergency:"Acute crisis in a chronic condition — Capital Hospital's emergency team handles complications including diabetic ketoacidosis, hypertensive emergencies, and respiratory failure."
+  },
+  emergency:{
+    routine:"Capital Hospital's Emergency Wing — the nearest 24×7 emergency facility from your location in Bhubaneswar. Call 108 for ambulance support; average response time within city is 8–12 minutes.",
+    urgent:"Capital Hospital's Emergency Wing — the nearest 24×7 emergency facility from your location in Bhubaneswar. Call 108 for ambulance support; average response time within city is 8–12 minutes.",
+    emergency:"Life-threatening situation — call 108 immediately. Capital Hospital has emergency resuscitation, ICU, and surgical support. AIIMS handles complex trauma and multi-specialty emergencies."
+  },
+};
+
+// ─── MAP INIT ───────────────────────────────────────────────────────────────
+const map = L.map('map', {zoomControl:false, attributionControl:true});
+
+const LAYERS = {
+  map: L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',{
+    attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> © <a href="https://carto.com">CARTO</a>',
+    subdomains:'abcd', maxZoom:19
+  }),
+  satellite: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{
+    attribution:'© <a href="https://www.esri.com">Esri</a>, Maxar, Earthstar Geographics',
+    maxZoom:19
+  })
+};
+
+LAYERS.map.addTo(map);
+let currentLayer = 'map';
+
+function setLayer(type){
+  if(type === currentLayer) return;
+  map.removeLayer(LAYERS[currentLayer]);
+  LAYERS[type].addTo(map);
+  currentLayer = type;
+  document.getElementById('lt-map').classList.toggle('active', type==='map');
+  document.getElementById('lt-sat').classList.toggle('active', type==='satellite');
+}
+
+L.control.zoom({position:'bottomright'}).addTo(map);
+map.setView([USER_LAT, USER_LNG], 13);
+
+// user marker
+const userIcon = L.divIcon({
+  className:'',
+  html:`<div class="mrkr-wrap" style="position:relative;width:22px;height:22px;">
+    <div style="position:absolute;inset:-6px;border-radius:50%;background:rgba(82,183,136,0.2);animation:userping 2.2s ease infinite;"></div>
+    <div style="position:absolute;inset:0;border-radius:50%;background:#52B788;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.25);"></div>
+  </div>`,iconSize:[22,22],iconAnchor:[11,11]
+});
+const userMarker = L.marker([USER_LAT, USER_LNG], {icon:userIcon,zIndexOffset:1000}).addTo(map);
+userMarker.bindPopup('<div class="pop"><div class="pop-name">Your Location</div><div class="pop-level">Bhubaneswar, Odisha</div><div class="pop-dist">📍 Master Canteen Area</div></div>');
+
+// context markers (grey, all facilities)
+const ctxIcon = key => L.divIcon({
+  className:'',
+  html:`<div style="width:10px;height:10px;border-radius:50%;background:rgba(100,130,110,0.5);border:1.5px solid rgba(82,183,136,0.3);"></div>`,
+  iconSize:[10,10],iconAnchor:[5,5]
+});
+const ctxMarkers=[];
+Object.entries(FACS).forEach(([k,f])=>{
+  const m=L.marker([f.lat,f.lng],{icon:ctxIcon(k),opacity:0.6}).addTo(map);
+  m.bindPopup(`<div class="pop"><div class="pop-name">${f.n}</div><div class="pop-level">${f.lname}</div><div class="pop-dist">📍 ${f.dist}</div></div>`);
+  ctxMarkers.push(m);
+});
+
+let activeMarkers=[];
+
+function makeFacIcon(color, ico){
+  return L.divIcon({
+    className:'',
+    html:`<div class="mrkr-wrap" style="display:flex;flex-direction:column;align-items:center;">
+      <div style="width:42px;height:42px;background:${color};border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:21px;border:2.5px solid white;box-shadow:0 4px 14px rgba(0,0,0,0.3);">
+        ${ico}
+      </div>
+      <div style="width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-top:8px solid ${color};margin-top:-1px;filter:drop-shadow(0 2px 2px rgba(0,0,0,0.2));"></div>
+    </div>`,
+    iconSize:[42,55],iconAnchor:[21,55]
+  });
+}
+
+// ─── STATE ──────────────────────────────────────────────────────────────────
+let selIssue=null, selUrgency=null;
+let introIssue=null, introUrgency=null;
+let patientContext={age:"", symptoms:""};
+
+function pickIssue(el, issue){
+  setIssueSelection(issue);
+}
+function setIssueSelection(issue){
+  selIssue=issue;
+  document.querySelectorAll('.ic').forEach(c=>c.classList.toggle('sel',c.dataset.issue===issue));
+  if(issue==='emergency') setUrgencySelection('emergency');
+  checkCTA();
+}
+function pickUrgency(u){
+  setUrgencySelection(u);
+}
+function setUrgencySelection(u){
+  selUrgency=u;
+  const map2={routine:{id:'ubr',c:'sr'},urgent:{id:'ubu',c:'su'},emergency:{id:'ube',c:'se'}};
+  ['ubr','ubu','ube'].forEach(id=>document.getElementById(id).className='ub');
+  const m=map2[u];document.getElementById(m.id).className=`ub ${m.c}`;
+  checkCTA();
+}
+function checkCTA(){document.getElementById('ctaBtn').disabled=!(selIssue&&selUrgency);}
+function syncMainSelection(issue, urgency){
+  setIssueSelection(issue);
+  setUrgencySelection(issue==='emergency'?'emergency':urgency);
+}
+function pickIntroIssue(el, issue){
+  introIssue=issue;
+  document.querySelectorAll('.intro-issue').forEach(c=>c.classList.toggle('sel',c===el));
+  if(issue==='emergency'){
+    const emergencyBtn=document.querySelector('[data-intro-urgency="emergency"]');
+    pickIntroUrgency(emergencyBtn,'emergency');
+  }
+  checkIntroCTA();
+}
+function pickIntroUrgency(el, urgency){
+  introUrgency=urgency;
+  document.querySelectorAll('.intro-urgency').forEach(c=>c.classList.toggle('sel',c===el));
+  checkIntroCTA();
+}
+function checkIntroCTA(){
+  document.getElementById('introContinue').disabled=!(introIssue&&introUrgency);
+}
+function startMainPage(){
+  if(!introIssue||!introUrgency) return;
+  patientContext={
+    age:document.getElementById('introAge').value,
+    symptoms:document.getElementById('introSymptoms').value.trim()
+  };
+  syncMainSelection(introIssue,introUrgency);
+  const intro=document.getElementById('intro-screen');
+  intro.classList.add('hide');
+  setTimeout(()=>{
+    intro.style.display='none';
+    map.invalidateSize();
+    search();
+  },300);
+}
+function patientContextText(){
+  const bits=[];
+  if(patientContext.age) bits.push(`Patient: ${patientContext.age}`);
+  if(patientContext.symptoms) bits.push(`Notes: ${patientContext.symptoms}`);
+  return bits.length?`\n\nPatient details: ${bits.join(' · ')}`:'';
+}
+
+function fCardHTML(f){
+  const tagHTML=f.tags.map(t=>{
+    if(t==='gov')return'<span class="tag tg">Government · Free</span>';
+    if(t==='24x7')return'<span class="tag t2">24×7 Open</span>';
+    if(t==='emg')return'<span class="tag te">Emergency Ward</span>';
+    if(t==='mat')return'<span class="tag tm">Maternity</span>';
+    if(t==='super')return'<span class="tag te">Super Specialty</span>';
+    if(t==='surg')return'<span class="tag t2">Surgery</span>';
+    if(t==='asha')return'<span class="tag tg">ASHA Linked</span>';
+    if(t==='free')return'<span class="tag tg">Free Medicines</span>';
+    return'';
+  }).join('');
+  return`<div class="fc-row">
+    <div class="fc-ico">${f.ico}</div>
+    <div class="fc-info">
+      <div class="fc-name">${f.n}</div>
+      <div class="fc-level">${f.lname}</div>
+      <div class="fc-dist">📍 ${f.dist} · ${f.hrs}</div>
+    </div>
+  </div>
+  <div class="tags">${tagHTML}</div>
+  <div class="fbtns">
+    <button class="fbtn fcall">📞 ${f.phone}</button>
+    <button class="fbtn fdir">🗺️ Directions</button>
+  </div>`;
+}
+
+function buildLadder(pKey, rKey){
+  const pL=FACS[pKey].level, rL=FACS[rKey].level;
+  return LADDER.map((name,i)=>{
+    let cls='ll', tag='';
+    if(i===pL){cls+=' la';tag=`<span class="ll-tag">You start here</span>`;}
+    else if(i===rL){cls+=' lr';tag=`<span class="ll-tag">If referred</span>`;}
+    return`<div class="${cls}"><div class="ld"><div class="ld-inner"></div></div><div class="ll-name">${name}</div>${tag}</div>`;
+  }).join('');
+}
+
+// ─── ROUTING ────────────────────────────────────────────────────────────────
+let routeLayers = [];
+let routeRequestId = 0;
+
+const ROUTE_SERVICES = [
+  {name:'OSRM public server', url:'https://router.project-osrm.org/route/v1/driving'},
+  {name:'OpenStreetMap Germany OSRM', url:'https://routing.openstreetmap.de/routed-car/route/v1/driving'}
+];
+
+function clearRoutes(){
+  routeLayers.forEach(l => { try{ map.removeLayer(l); }catch(e){} });
+  routeLayers = [];
+  routeRequestId++;
+  document.getElementById('map-spinner').classList.remove('show');
+}
+
+function setRouteStatus(msg){
+  document.querySelector('#map-spinner .ms-txt').textContent=msg;
+}
+
+function osrmUrl(service, from, to){
+  const coords=`${from.lng},${from.lat};${to.lng},${to.lat}`;
+  return `${service.url}/${coords}?overview=full&geometries=geojson&steps=false&alternatives=false`;
+}
+
+async function fetchJsonWithTimeout(url, timeout=16000){
+  const controller=new AbortController();
+  const timer=setTimeout(()=>controller.abort(),timeout);
+  try{
+    const res=await fetch(url,{signal:controller.signal,headers:{Accept:'application/json'}});
+    if(!res.ok) throw new Error(`HTTP ${res.status}`);
+    return await res.json();
+  }finally{
+    clearTimeout(timer);
+  }
+}
+
+async function fetchRoadRoute(from, to){
+  let lastError=null;
+  for(const service of ROUTE_SERVICES){
+    try{
+      const data=await fetchJsonWithTimeout(osrmUrl(service,from,to));
+      if(data.code!=='Ok'||!data.routes||!data.routes.length){
+        throw new Error(data.message||data.code||'No route returned');
+      }
+      const route=data.routes[0];
+      return {
+        points:route.geometry.coordinates.map(([lng,lat])=>[lat,lng]),
+        distance:route.distance,
+        duration:route.duration,
+        service:service.name
+      };
+    }catch(err){
+      lastError=err;
+      console.warn(`${service.name} failed`,err);
+    }
+  }
+  throw lastError||new Error('No OSRM service responded');
+}
+
+function fmtDistance(meters){
+  return meters>=1000?`${(meters/1000).toFixed(1)} km`:`${Math.round(meters)} m`;
+}
+
+function fmtDuration(seconds){
+  const mins=Math.max(1,Math.round(seconds/60));
+  if(mins<60) return `${mins} min`;
+  const hrs=Math.floor(mins/60);
+  const rem=mins%60;
+  return rem?`${hrs} hr ${rem} min`:`${hrs} hr`;
+}
+
+function addRouteLines(points, color, opts={}){
+  const shadow=L.polyline(points,{
+    color:opts.shadow||'#08110B',
+    weight:opts.weight?opts.weight+4:9,
+    opacity:0.34,
+    lineCap:'round',
+    lineJoin:'round',
+    dashArray:opts.dashArray||null
+  }).addTo(map);
+  const line=L.polyline(points,{
+    color,
+    weight:opts.weight||5,
+    opacity:opts.opacity||0.92,
+    lineCap:'round',
+    lineJoin:'round',
+    dashArray:opts.dashArray||null
+  }).addTo(map);
+  routeLayers.push(shadow,line);
+  return line;
+}
+
+async function drawRoute(pFac, rFac){
+  clearRoutes();
+  const currentRequest=++routeRequestId;
+  const spinner=document.getElementById('map-spinner');
+  spinner.classList.add('show');
+  setRouteStatus('Asking OSRM for road route…');
+
+  const userPt = L.latLng(USER_LAT, USER_LNG);
+  const primPt = L.latLng(pFac.lat, pFac.lng);
+  const refPt  = L.latLng(rFac.lat, rFac.lng);
+
+  try{
+    const [leg1,leg2]=await Promise.all([
+      fetchRoadRoute(userPt,primPt),
+      fetchRoadRoute(primPt,refPt)
+    ]);
+    if(currentRequest!==routeRequestId) return;
+
+    const firstLine=addRouteLines(leg1.points,'#52B788',{weight:5});
+    const referralLine=addRouteLines(leg2.points,'#E9C46A',{weight:4.5,opacity:0.88,dashArray:'12 8',shadow:'#2D2410'});
+    firstLine.bindTooltip(`To first stop: ${fmtDistance(leg1.distance)} · ${fmtDuration(leg1.duration)}`);
+    referralLine.bindTooltip(`Referral route: ${fmtDistance(leg2.distance)} · ${fmtDuration(leg2.duration)}`);
+
+    const bounds=L.latLngBounds([...leg1.points,...leg2.points]);
+    map.flyToBounds(bounds,{padding:[60,60],duration:1.2,maxZoom:14});
+
+    const info=document.getElementById('map-info');
+    info.textContent=`Road route loaded · ${fmtDistance(leg1.distance)} to first stop · ${fmtDistance(leg2.distance)} referral leg`;
+    info.classList.add('show');
+  }catch(err){
+    if(currentRequest!==routeRequestId) return;
+    console.error('Road routing failed',err);
+    const info=document.getElementById('map-info');
+    info.textContent='OSRM road route is unavailable right now. No straight-line route is being shown.';
+    info.classList.add('show');
+    map.flyToBounds(L.latLngBounds([userPt,primPt,refPt]),{padding:[60,60],duration:1.2,maxZoom:14});
+  }finally{
+    if(currentRequest===routeRequestId) spinner.classList.remove('show');
+  }
+}
+
+// ─── SEARCH ─────────────────────────────────────────────────────────────────
+function search(){
+  const s=SCENARIOS[selIssue][selUrgency];
+  const pFac=FACS[s.p], rFac=FACS[s.r];
+
+  // show sidebar loader
+  document.getElementById('loading').classList.add('show');
+  const msgs=["Scanning nearby facilities…","Calculating optimal care path…","Checking 24×7 availability…"];
+  let mi=0;
+  const ti=setInterval(()=>{
+    mi++;if(mi<msgs.length)document.getElementById('loadTxt').textContent=msgs[mi];
+  },600);
+
+  setTimeout(()=>{
+    clearInterval(ti);
+    document.getElementById('loading').classList.remove('show');
+
+    // remove old markers
+    activeMarkers.forEach(m=>map.removeLayer(m));activeMarkers=[];
+
+    // drop primary marker
+    const pm = L.marker([pFac.lat,pFac.lng],{icon:makeFacIcon('#1DB954',pFac.ico)}).addTo(map);
+    pm.bindPopup(`<div class="pop"><div class="pop-name">${pFac.n}</div><div class="pop-level">${pFac.lname}</div><div class="pop-dist">📍 ${pFac.dist}</div><div class="pop-phone">📞 ${pFac.phone}</div></div>`).openPopup();
+    activeMarkers.push(pm);
+
+    // drop referral marker with delay
+    setTimeout(()=>{
+      const rm = L.marker([rFac.lat,rFac.lng],{icon:makeFacIcon('#E9C46A',rFac.ico)}).addTo(map);
+      rm.bindPopup(`<div class="pop"><div class="pop-name">${rFac.n}</div><div class="pop-level">${rFac.lname}</div><div class="pop-dist">📍 ${rFac.dist}</div><div class="pop-phone">📞 ${rFac.phone}</div></div>`);
+      activeMarkers.push(rm);
+      drawRoute(pFac,rFac);
+    },500);
+
+    // map overlays
+    const info=document.getElementById('map-info');
+    info.textContent=`Found ${Object.keys(FACS).length} facilities near Bhubaneswar · Showing optimal path`;
+    info.classList.add('show');
+    document.getElementById('map-legend').classList.add('show');
+
+    // populate results
+    document.getElementById('emergBar').classList.toggle('show',s.emg);
+    document.getElementById('primaryCard').innerHTML=fCardHTML(pFac);
+    document.getElementById('referralCard').innerHTML=fCardHTML(rFac);
+    document.getElementById('teleStrip').style.display=s.tele?'flex':'none';
+    document.getElementById('ladderEl').innerHTML=buildLadder(s.p,s.r);
+
+    // switch panels
+    document.getElementById('input-panel').style.display='none';
+    document.getElementById('results-panel').style.display='block';
+    document.querySelector('.sb-body').scrollTop=0;
+
+    // typewriter
+    typewrite(document.getElementById('adv-text'), ADVICE[selIssue][selUrgency]+patientContextText());
+  }, 1900);
+}
+
+function goBack(){
+  activeMarkers.forEach(m=>map.removeLayer(m));activeMarkers=[];
+  clearRoutes();
+  document.getElementById('input-panel').style.display='block';
+  document.getElementById('results-panel').style.display='none';
+  document.getElementById('map-info').classList.remove('show');
+  document.getElementById('map-legend').classList.remove('show');
+  map.flyTo([USER_LAT,USER_LNG],13,{duration:1});
+}
+
+// typewriter
+function typewrite(el, text, spd=16){
+  el.innerHTML='';
+  const cur=document.createElement('span');cur.className='cursor-blink';el.appendChild(cur);
+  let i=0;
+  const iv=setInterval(()=>{
+    if(i<text.length){cur.before(text.charAt(i));i++;}
+    else{cur.remove();clearInterval(iv);}
+  },spd);
+}
+
+// ─── LOCATION ANIMATION ─────────────────────────────────────────────────────
+setTimeout(()=>{
+  document.getElementById('locVal').textContent='Bhubaneswar, Odisha 751001';
+  document.getElementById('loc-status').textContent='✓ GPS located · 12 govt facilities in range';
+  document.getElementById('loc-status').style.color='#52B788';
+},2200);
+</script>
+</body>
+</html>
