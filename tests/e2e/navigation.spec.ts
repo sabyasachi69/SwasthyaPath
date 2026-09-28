@@ -1,0 +1,5 @@
+import {test,expect} from '@playwright/test';
+test('emergency contact works without account',async({page})=>{await page.goto('/');await expect(page.getByRole('heading',{name:'Find care close to home.'})).toBeVisible();await expect(page.locator('a[href="tel:108"]').first()).toBeVisible();await expect(page.getByRole('button',{name:'Find facilities →'})).toBeDisabled();});
+test('Odia language is selectable',async({page})=>{await page.goto('/');await page.getByRole('button',{name:'ଓଡ଼ିଆ ⇄'}).click();await expect(page.locator('html')).toHaveAttribute('lang','or');});
+test('clinical endpoint fails closed',async({request})=>{const r=await request.post('/api/v1/navigation/recommend',{data:{answers:{},lat:20.2961,lng:85.8245}});expect(r.status()).toBe(503);expect((await r.json()).error.code).toBe('CLINICAL_PROTOCOL_NOT_APPROVED');});
+test('outside city request is rejected',async({request})=>{const r=await request.post('/api/v1/facilities/search',{data:{lat:28.6,lng:77.2}});expect(r.status()).toBe(422);});

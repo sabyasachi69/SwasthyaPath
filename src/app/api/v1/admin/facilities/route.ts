@@ -1,0 +1,5 @@
+import {z} from 'zod';
+import {db} from '@/lib/supabase/server';
+import {failure,sameOrigin} from '@/lib/http';
+const input=z.object({slug:z.string().regex(/^[a-z0-9-]+$/),snapshot:z.object({name_en:z.string().min(2).max(160),name_or:z.string().min(2).max(200),address:z.string().min(5).max(300),kind:z.string().min(2).max(80),latitude:z.number().min(20.12).max(20.42),longitude:z.number().min(85.65).max(85.95)}).strict(),reason:z.string().min(10).max(500),evidence:z.url().startsWith('https://')}).strict();
+export async function POST(request:Request){if(!sameOrigin(request))return failure('FORBIDDEN',403);try{const parsed=input.safeParse(await request.json());if(!parsed.success)return failure('VALIDATION_ERROR',400);const client=await db();const {data,error}=await client.rpc('create_facility_draft',{p_slug:parsed.data.slug,p_snapshot:parsed.data.snapshot,p_reason:parsed.data.reason,p_evidence:parsed.data.evidence});if(error)throw error;return Response.json({id:data},{status:201,headers:{'Cache-Control':'no-store'}});}catch{return failure('DRAFT_FAILED',403);}}
