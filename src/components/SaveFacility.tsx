@@ -1,0 +1,4 @@
+'use client';
+import {useState} from 'react';
+import Link from 'next/link';
+export default function SaveFacility({id,services}:{id:string;services:string[]}){const [consent,setConsent]=useState(false),[message,setMessage]=useState('');return <div><label><input type="checkbox" checked={consent} style={{width:20,minHeight:20}} onChange={e=>setConsent(e.target.checked)}/> I consent to saving this destination for up to 90 days.</label><button className="primary" disabled={!consent||!services.length} onClick={async()=>{try{const r=await fetch('/api/v1/care-plans',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({facilityId:id,service:services[0],consent:true})});setMessage(r.status===401?'Sign in to save your plan.':r.ok?'Plan saved.':'Unable to save this plan.');}catch{setMessage('Connection unavailable.');}}}>Save destination</button><p role="status">{message} <Link href="/account">Your account →</Link></p></div>;}

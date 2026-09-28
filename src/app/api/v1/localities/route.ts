@@ -1,0 +1,3 @@
+import {db} from '@/lib/supabase/server';
+import {failure} from '@/lib/http';
+export async function GET(req:Request){const query=new URL(req.url).searchParams.get('query')?.trim()??'';if(query.length<2||query.length>80)return Response.json({localities:[]});try{const client=await db();const {data,error}=await client.from('service_areas').select('id,locality,pincode,latitude,longitude').eq('city','Bhubaneswar').or(`locality.ilike.%${query.replace(/[^\p{L}\p{N}\s-]/gu,'')}%,pincode.eq.${/^\d{6}$/.test(query)?query:'000000'}`).limit(20);if(error)throw error;return Response.json({localities:data});}catch{return failure('SERVICE_UNAVAILABLE');}}

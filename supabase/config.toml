@@ -1,0 +1,23 @@
+project_id = "swasthyapath"
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "api"]
+extra_search_path = ["public", "extensions"]
+max_rows = 100
+[db]
+port = 54322
+shadow_port = 54320
+major_version = 17
+[db.seed]
+enabled = false
+[auth]
+enabled = true
+site_url = "http://localhost:3000"
+additional_redirect_urls = ["http://localhost:3000/auth/callback"]
+jwt_expiry = 900
+enable_signup = true
+[auth.sms]
+enable_signup = true
+enable_confirmations = true
+max_frequency = "60s"
