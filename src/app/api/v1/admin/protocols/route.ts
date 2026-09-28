@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { db } from "@/lib/supabase/server";
-import { failure, sameOrigin } from "@/lib/http";
+import { failure, sameOrigin, serviceFailure } from "@/lib/http";
 import type { Json } from "@/lib/supabase/database.types";
 const input = z
   .object({
@@ -27,7 +27,7 @@ export async function POST(request: Request) {
     });
     if (error) throw error;
     return Response.json({ id: data }, { status: 201 });
-  } catch {
-    return failure("PROTOCOL_SUBMIT_FAILED", 403);
+  } catch (error) {
+    return serviceFailure(error, "PROTOCOL_SUBMIT_FAILED", 403);
   }
 }

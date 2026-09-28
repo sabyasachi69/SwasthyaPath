@@ -204,7 +204,7 @@ export default function SafeIntake({
             <p className="notice">
               {odia
                 ? "ଯାଞ୍ଚ ହୋଇଥିବା ମେଳ ମିଳିଲା ନାହିଁ। ଏହି ସିଷ୍ଟମ୍ ଅଯାଞ୍ଚ ତଥ୍ୟ ଦେଖାଇବ ନାହିଁ।"
-                : "No verified match was found. This system will not substitute unverified or demo data."}
+                : "No verified match was found. This system will not substitute unverified information."}
             </p>
           ) : (
             result.facilities.map((facility, index) => (

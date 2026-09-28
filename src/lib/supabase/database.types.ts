@@ -45,56 +45,68 @@ export type Database = {
         Row: {
           address: string
           area_id: string | null
+          coord_quality: string | null
           data_class: string
           id: string
           kind: string
           last_verified_at: string | null
           latitude: number
+          locality: string | null
           location: unknown
           longitude: number
           name_en: string
           name_or: string
           ownership: string
+          pincode: string | null
           published_revision_id: string | null
           slug: string
           valid_until: string | null
           verification_status: string
+          website: string | null
         }
         Insert: {
           address: string
           area_id?: string | null
+          coord_quality?: string | null
           data_class?: string
           id?: string
           kind: string
           last_verified_at?: string | null
           latitude: number
+          locality?: string | null
           location?: unknown
           longitude: number
           name_en: string
           name_or: string
           ownership?: string
+          pincode?: string | null
           published_revision_id?: string | null
           slug: string
           valid_until?: string | null
           verification_status?: string
+          website?: string | null
         }
         Update: {
           address?: string
           area_id?: string | null
+          coord_quality?: string | null
           data_class?: string
           id?: string
           kind?: string
           last_verified_at?: string | null
           latitude?: number
+          locality?: string | null
           location?: unknown
           longitude?: number
           name_en?: string
           name_or?: string
           ownership?: string
+          pincode?: string | null
           published_revision_id?: string | null
           slug?: string
           valid_until?: string | null
           verification_status?: string
+          website?: string | null
         }
         Relationships: [
           {
@@ -144,6 +156,57 @@ export type Database = {
           },
           {
             foreignKeyName: "facility_contacts_source_id_fkey"
+            columns: ["source_id"]
+            isOneToOne: false
+            referencedRelation: "data_sources"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      facility_practitioners: {
+        Row: {
+          display_name: string
+          facility_id: string
+          id: string
+          published: boolean
+          qualification: string
+          source_id: string
+          specialization: string
+          valid_until: string
+          verified_at: string
+        }
+        Insert: {
+          display_name: string
+          facility_id: string
+          id?: string
+          published?: boolean
+          qualification: string
+          source_id: string
+          specialization: string
+          valid_until: string
+          verified_at: string
+        }
+        Update: {
+          display_name?: string
+          facility_id?: string
+          id?: string
+          published?: boolean
+          qualification?: string
+          source_id?: string
+          specialization?: string
+          valid_until?: string
+          verified_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "facility_practitioners_facility_id_fkey"
+            columns: ["facility_id"]
+            isOneToOne: false
+            referencedRelation: "facilities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "facility_practitioners_source_id_fkey"
             columns: ["source_id"]
             isOneToOne: false
             referencedRelation: "data_sources"
@@ -641,6 +704,7 @@ export type Database = {
         Returns: undefined
       }
       publish_revision: { Args: { p_revision: string }; Returns: undefined }
+      release_contract: { Args: never; Returns: Json }
       restore_publication: {
         Args: { p_publication: string; p_reason: string }
         Returns: undefined
@@ -651,7 +715,7 @@ export type Database = {
       }
       revoke_share: { Args: { p_referral: string }; Returns: undefined }
       search_facilities: {
-        Args: { p_lat: number; p_lng: number; p_service?: string }
+        Args: { p_kind?: string | null; p_lat: number; p_lng: number; p_service?: string | null }
         Returns: unknown[]
         SetofOptions: {
           from: "*"

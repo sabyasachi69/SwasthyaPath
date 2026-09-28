@@ -1,15 +1,18 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { demoEnabled } from "@/lib/demo";
 import Pwa from "@/components/Pwa";
 import "./globals.css";
 export const metadata: Metadata = {
   title: "SwasthyaPath • Care in Bhubaneswar",
   description:
-    "Find verified care information and plan your next step in Bhubaneswar.",
+    "Find hospitals, clinics, diagnostics and pharmacies near you in Bhubaneswar.",
   manifest: "/manifest.webmanifest",
 };
 export default function Layout({ children }: { children: React.ReactNode }) {
+  const release = (
+    process.env.VERCEL_GIT_COMMIT_SHA ?? process.env.GITHUB_SHA ?? "local"
+  ).slice(0, 7);
+  const environment = process.env.VERCEL_ENV ?? process.env.APP_ENV ?? "development";
   return (
     <html lang="en">
       <body>
@@ -17,12 +20,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <a className="skip" href="#main">
           Skip to content
         </a>
-        {demoEnabled() && (
-          <div className="demo">
-            DEMONSTRATION • Fictional facilities • No real referral or medical
-            guidance
-          </div>
-        )}
         <header>
           <Link className="brand" href="/">
             <span className="brand-icon">✚</span> Swasthya<span>Path</span>
@@ -37,6 +34,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <main id="main">{children}</main>
         <footer>
           <span>Bhubaneswar, Odisha • Care navigation</span>
+          <span className="release">{environment} • {release}</span>
           <Link href="/privacy">Privacy & data</Link>
           <Link href="/admin">Staff</Link>
           <a

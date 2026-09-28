@@ -226,6 +226,71 @@ textarea {
 .feedback-card button {
   margin-top: 12px;
 }
+.release {
+  font-size: 11px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  text-transform: uppercase;
+}
+.demo-tour {
+  max-width: 1040px;
+  margin: 56px auto;
+}
+.demo-tour > p {
+  max-width: 720px;
+}
+.tour-layout {
+  display: grid;
+  grid-template-columns: minmax(240px, 0.7fr) minmax(0, 1.3fr);
+  gap: 24px;
+  margin-top: 28px;
+}
+.tour-steps {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.tour-step {
+  width: 100%;
+  padding: 16px;
+  margin-bottom: 10px;
+  text-align: left;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: white;
+  color: var(--ink);
+  font-weight: 650;
+}
+.tour-step span {
+  display: block;
+  margin-bottom: 5px;
+  color: var(--green);
+  font-size: 10px;
+  letter-spacing: 1px;
+}
+.tour-step.active {
+  border-color: var(--green);
+  background: #e9f4eb;
+}
+.tour-preview {
+  min-height: 430px;
+  padding: 28px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: white;
+}
+.tour-card {
+  display: grid;
+  gap: 8px;
+  padding: 20px;
+  margin: 24px 0;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--paper);
+}
+.tour-card small,
+.tour-card span {
+  color: var(--muted);
+}
 .input-row {
   display: flex;
   gap: 6px;
@@ -368,8 +433,63 @@ footer {
   font-size: 13px;
 }
 .facility {
-  padding: 22px 0;
-  border-bottom: 1px solid var(--line);
+  display: grid;
+  grid-template-columns: 148px 1fr;
+  overflow: hidden;
+  margin-top: 18px;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 10px 30px rgb(22 62 48 / 6%);
+}
+.facility-body {
+  padding: 22px;
+}
+.facility-visual,
+.profile-cover {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: 190px;
+  color: #fff;
+  background: linear-gradient(145deg, #174c38, #3c9a70);
+}
+.facility-visual.pharmacy,
+.profile-cover.pharmacy {
+  background: linear-gradient(145deg, #28597a, #68a7bf);
+}
+.facility-visual.clinic,
+.facility-visual.dental-clinic,
+.facility-visual.eye-hospital,
+.profile-cover.clinic,
+.profile-cover.dental-clinic,
+.profile-cover.eye-hospital {
+  background: linear-gradient(145deg, #725123, #d1a651);
+}
+.facility-visual.diagnostic-lab,
+.profile-cover.diagnostic-lab {
+  background: linear-gradient(145deg, #493a76, #8c78c1);
+}
+.facility-visual span,
+.profile-cover > span {
+  display: grid;
+  width: 58px;
+  height: 58px;
+  place-items: center;
+  border: 1px solid rgb(255 255 255 / 55%);
+  border-radius: 18px;
+  background: rgb(255 255 255 / 14%);
+  font: 700 24px/1 "Outfit", sans-serif;
+}
+.facility-visual small,
+.profile-cover small {
+  max-width: 120px;
+  text-align: center;
+  font-weight: 650;
+  letter-spacing: .05em;
 }
 .facility-top {
   display: flex;
@@ -403,6 +523,174 @@ footer {
 .content-page {
   max-width: 740px;
   margin: 55px auto;
+}
+.map-shell {
+  position: relative;
+  margin: 18px 0;
+}
+.care-map {
+  height: 360px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: #dfe9e2;
+  z-index: 0;
+}
+.map-legend {
+  position: absolute;
+  z-index: 500;
+  top: 12px;
+  right: 12px;
+  display: flex;
+  gap: 12px;
+  padding: 9px 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: rgb(255 255 255 / 94%);
+  box-shadow: 0 4px 18px rgb(22 62 48 / 12%);
+  color: var(--muted);
+  font-size: 11px;
+}
+.map-legend span {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.map-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--green);
+}
+.map-dot.facility-dot {
+  background: #f6c95f;
+  border: 1px solid #174c38;
+}
+.facility-profile {
+  max-width: 1080px;
+  margin: 42px auto 70px;
+}
+.back-link {
+  display: inline-block;
+  margin-bottom: 22px;
+  color: var(--green);
+  font-weight: 650;
+  font-size: 13px;
+}
+.profile-hero {
+  display: grid;
+  grid-template-columns: minmax(240px, .75fr) minmax(0, 1.25fr);
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  background: #fff;
+}
+.profile-hero > div:last-child {
+  padding: clamp(28px, 5vw, 56px);
+}
+.profile-hero h1 {
+  margin-bottom: 8px;
+}
+.profile-address {
+  max-width: 620px;
+}
+.profile-grid {
+  display: grid;
+  grid-template-columns: 1.15fr .85fr;
+  gap: 22px;
+  margin-top: 22px;
+}
+.profile-panel {
+  padding: 28px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: #fff;
+}
+.profile-facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.profile-facts div {
+  padding: 15px;
+  border-radius: 12px;
+  background: var(--paper);
+}
+.profile-facts dt {
+  color: var(--muted);
+  font-size: 11px;
+}
+.profile-facts dd {
+  margin: 6px 0 0;
+  font-weight: 650;
+}
+.information-empty {
+  padding: 22px;
+  border-radius: 14px;
+  background: var(--paper);
+  text-align: center;
+}
+.information-empty > span {
+  display: inline-grid;
+  width: 48px;
+  height: 48px;
+  place-items: center;
+  border-radius: 50%;
+  background: #e2eee5;
+  color: var(--green);
+  font-size: 24px;
+}
+.information-empty h3 {
+  font-size: 18px;
+}
+.practitioner-list article {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--line);
+}
+.practitioner-list h3,
+.practitioner-list p {
+  margin: 0;
+}
+.avatar {
+  display: grid;
+  width: 46px;
+  height: 46px;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 50%;
+  background: #e2eee5;
+  color: var(--green);
+  font-weight: 700;
+}
+.source-strip {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 24px;
+  align-items: center;
+  margin-top: 22px;
+  padding: 20px 24px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: #eaf0e6;
+}
+.source-strip div {
+  display: grid;
+  font-size: 12px;
+}
+.source-strip p {
+  margin: 0;
+  font-size: 12px;
+}
+.source-strip a {
+  font-size: 12px;
+  font-weight: 700;
+}
+.profile-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 22px;
 }
 .content-page input {
   margin: 8px 0;
@@ -511,6 +799,10 @@ footer {
   main {
     padding: 0 20px;
   }
+  .profile-grid,
+  .profile-actions {
+    grid-template-columns: 1fr;
+  }
 }
 @media (max-width: 500px) {
   .form-grid {
@@ -552,8 +844,31 @@ footer {
   .facility-top {
     gap: 12px;
   }
+  .facility {
+    grid-template-columns: 1fr;
+  }
+  .facility-visual {
+    min-height: 110px;
+  }
+  .profile-hero {
+    grid-template-columns: 1fr;
+  }
+  .profile-cover {
+    min-height: 180px;
+  }
+  .profile-facts,
+  .source-strip {
+    grid-template-columns: 1fr;
+  }
+  .map-legend {
+    left: 12px;
+    right: auto;
+  }
   .actions {
     gap: 8px;
+  }
+  .tour-layout {
+    grid-template-columns: 1fr;
   }
 }
 @media (prefers-reduced-motion: reduce) {

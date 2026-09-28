@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { db } from "@/lib/supabase/server";
-import { failure } from "@/lib/http";
+import { failure, serviceFailure } from "@/lib/http";
 import { evaluate, type Protocol } from "@/domain/triage";
 import { inBhubaneswar, type Facility } from "@/domain/facility";
 import { rankFacilities } from "@/domain/facility";
@@ -67,11 +67,10 @@ export async function POST(req: Request) {
       { headers: { "Cache-Control": "no-store" } },
     );
   } catch (error) {
-    return failure(
+    if (
       error instanceof Error &&
         ["INCOMPLETE_ANSWERS", "INVALID_ANSWER"].includes(error.message)
-        ? error.message
-        : "CLINICAL_PROTOCOL_NOT_APPROVED",
-    );
+    ) return failure(error.message);
+    return serviceFailure(error, "CLINICAL_PROTOCOL_NOT_APPROVED");
   }
 }

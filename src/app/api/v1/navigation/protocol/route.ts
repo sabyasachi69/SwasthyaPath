@@ -1,5 +1,5 @@
 import { db } from "@/lib/supabase/server";
-import { failure } from "@/lib/http";
+import { failure, serviceFailure } from "@/lib/http";
 import type { Protocol } from "@/domain/triage";
 export async function GET() {
   try {
@@ -15,7 +15,7 @@ export async function GET() {
       },
       { headers: { "Cache-Control": "no-store" } },
     );
-  } catch {
-    return failure("CLINICAL_PROTOCOL_NOT_APPROVED");
+  } catch (error) {
+    return serviceFailure(error, "CLINICAL_PROTOCOL_NOT_APPROVED");
   }
 }
