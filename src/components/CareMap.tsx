@@ -71,7 +71,7 @@ export default function CareMap({
     }
 
     let cancelled = false;
-    fetch("/api/v1/map-config")
+    fetch("/api/v1/map-config", { cache: "no-store" })
       .then((response) => response.json())
       .then((config) => {
         if (!cancelled && config.url) {

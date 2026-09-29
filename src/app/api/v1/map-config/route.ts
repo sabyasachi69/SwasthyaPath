@@ -13,6 +13,6 @@ export async function GET() {
 
   return Response.json(
     { url, attribution },
-    { headers: { "Cache-Control": "public, max-age=300" } },
+    { headers: { "Cache-Control": "no-store" } },
   );
 }
