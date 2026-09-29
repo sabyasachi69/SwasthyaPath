@@ -13,7 +13,8 @@ export async function POST(request:Request){
   if(!base)return failure('ROUTE_PREVIEW_UNAVAILABLE');
   const {from,to}=parsed.data;
   const url=new URL(`${base.replace(/\/$/,'')}/${from.lng},${from.lat};${to.lng},${to.lat}`);
-  url.searchParams.set('overview','false');
+  url.searchParams.set('overview','full');
+  url.searchParams.set('geometries','geojson');
   url.searchParams.set('steps','false');
   const controller=new AbortController();
   const timeout=setTimeout(()=>controller.abort(),5000);
@@ -22,6 +23,8 @@ export async function POST(request:Request){
   const payload=await response.json();
   const route=payload?.routes?.[0];
   if(!route||typeof route.distance!=='number'||typeof route.duration!=='number')throw Error('provider');
-  return Response.json({distanceKm:Math.round(route.distance)/1000,durationMinutes:Math.ceil(route.duration/60),source:'configured-routing-provider'},{headers:{'Cache-Control':'no-store'}});
+  const coordinates=route.geometry?.coordinates;
+  if(!Array.isArray(coordinates)||coordinates.length<2)throw Error('provider');
+  return Response.json({distanceKm:Math.round(route.distance)/1000,durationMinutes:Math.ceil(route.duration/60),geometry:{coordinates},source:'configured-routing-provider'},{headers:{'Cache-Control':'no-store'}});
  }catch{return failure('ROUTE_PREVIEW_UNAVAILABLE');}
 }

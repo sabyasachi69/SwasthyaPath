@@ -4,7 +4,7 @@ Updated: 28 September 2026
 
 ## Implemented
 
-- Next.js App Router mobile web application with English/Odia switching, browser geolocation, manual locality/pincode fallback, list-first results, lazy Leaflet map, external directions, real `tel:` actions, and the official eSanjeevani link.
+- Next.js App Router mobile web application with English/Odia switching, browser geolocation, manual locality/pincode fallback, an interactive Leaflet map, external directions, and real facility `tel:` actions.
 - Deterministic, versioned navigation rules with an approved-protocol-only API. The interface fails closed when no clinician-approved protocol exists.
 - Supabase PostgreSQL/PostGIS schema, explicit grants, RLS on exposed tables, private operational schemas, maker-checker facility publication, independent clinician protocol publication, audit events, rollback functions, hashed single-use referral links, and account ownership isolation.
 - Optional phone-OTP account flow, consented care plans, patient-reported referral status, account export/deletion controls, and clear “facility not connected” labelling.

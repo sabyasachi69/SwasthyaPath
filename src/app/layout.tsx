@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Pwa from "@/components/Pwa";
+import ThemeToggle from "@/components/ThemeToggle";
 import "./globals.css";
 export const metadata: Metadata = {
   title: "SwasthyaPath • Care in Bhubaneswar",
@@ -26,9 +27,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           </Link>
           <nav>
             <Link href="/account">Saved plans</Link>
-            <a className="emergency" href="tel:108">
-              Call 108
-            </a>
+            <ThemeToggle />
           </nav>
         </header>
         <main id="main">{children}</main>
