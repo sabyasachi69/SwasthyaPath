@@ -346,6 +346,107 @@ textarea {
   color: var(--green);
   font-weight: 600;
 }
+.choice-group {
+  margin: 18px 0;
+}
+.choice-group > span {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 12px;
+  font-weight: 650;
+}
+.choice-group em {
+  margin-left: 4px;
+  color: var(--muted);
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 500;
+}
+.choice-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+}
+.choice {
+  min-height: 46px;
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--input);
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 650;
+}
+.choice.active {
+  border-color: var(--green);
+  background: color-mix(in srgb, var(--green) 14%, var(--surface));
+  box-shadow: inset 0 0 0 1px var(--green);
+}
+.priority-row {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.priority-row .choice {
+  display: grid;
+  justify-items: start;
+  gap: 2px;
+  min-height: 58px;
+  padding: 10px 12px;
+}
+.priority-row .choice small {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 500;
+}
+.emergency-search {
+  width: 100%;
+  min-height: 52px;
+  margin-top: 5px;
+  border: 1px solid #b85b42;
+  border-radius: 10px;
+  background: #b85b42;
+  color: white;
+  font-weight: 750;
+}
+.emergency-help {
+  margin: 8px 0 0;
+  font-size: 11px;
+  line-height: 1.45;
+}
+.emergency-lookup {
+  margin-top: 12px;
+  padding: 12px;
+  border: 1px solid #d9a59a;
+  border-radius: 10px;
+  background: #fff3ed;
+}
+.emergency-lookup strong {
+  font-size: 13px;
+}
+.emergency-lookup p {
+  margin: 5px 0 0;
+  font-size: 11px;
+  line-height: 1.45;
+}
+.optional-details {
+  margin-top: 15px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+.optional-details summary {
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 650;
+}
+.optional-details label {
+  margin-top: 14px;
+}
+.optional-details textarea {
+  min-height: 82px;
+}
+html[data-theme="dark"] .emergency-lookup {
+  background: #44251e;
+  border-color: #9d5845;
+}
 .small {
   font-size: 12px;
   line-height: 1.6;
@@ -1152,6 +1253,12 @@ html[data-theme="dark"] .status-chip:not(.off-duty) {
     right: auto;
   }
   .map-legend span:nth-child(n+4) { display: none; }
+  .choice-row {
+    gap: 6px;
+  }
+  .choice {
+    font-size: 11px;
+  }
   .care-map { min-height: 330px; height: 48vh; }
   .selected-heading { display: block; }
   .selected-heading > a { display: inline-flex; margin-top: 12px; }

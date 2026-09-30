@@ -18,6 +18,9 @@ const copy = {
 
 type Locality = { id: string; locality: string; pincode: string; latitude: number; longitude: number };
 type LocationPoint = { lat: number; lng: number; label: string; accuracy?: number };
+type AgeGroup = "child" | "adult" | "senior" | null;
+type Gender = "male" | "female" | "other" | null;
+type CarePriority = "routine" | "urgent" | "emergency" | null;
 
 function kindIcon(kind: string) {
   const value = kind.toLowerCase();
@@ -39,6 +42,11 @@ export default function Navigator() {
   const [selectedDetail, setSelectedDetail] = useState<FacilityDetail | null>(null);
   const [route, setRoute] = useState<RouteInfo | null>(null);
   const [symptoms, setSymptoms] = useState("");
+  const [ageGroup, setAgeGroup] = useState<AgeGroup>(null);
+  const [gender, setGender] = useState<Gender>(null);
+  const [carePriority, setCarePriority] = useState<CarePriority>(null);
+  const [conditionDetails, setConditionDetails] = useState("");
+  const [bloodType, setBloodType] = useState("");
   const [manualOverride, setManualOverride] = useState(false);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
@@ -50,7 +58,7 @@ export default function Navigator() {
   const t = copy[lang];
   const guidance = useMemo(() => demoMode ? symptomGuidance(symptoms) : null, [demoMode, symptoms]);
 
-  const searchAt = useCallback(async (point: LocationPoint, requestedKind: FacilityFilter) => {
+  const searchAt = useCallback(async (point: LocationPoint, requestedKind: FacilityFilter, selectNearest = false) => {
     const requestId = ++searchSequence.current;
     setBusy(true); setMessage("");
     try {
@@ -58,7 +66,17 @@ export default function Navigator() {
       const data = await response.json();
       if (requestId !== searchSequence.current) return;
       if (!response.ok) { setFacilities([]); setSelectedFacility(null); setMessage(data.error?.code === "OUTSIDE_SERVICE_AREA" ? "SwasthyaPath currently serves Bhubaneswar only." : "The directory is temporarily unavailable. Please try again."); }
-      else { setFacilities(data.facilities); setSelectedFacility((current) => current && !data.facilities.some((facility: Facility) => facility.id === current.id) ? null : current); }
+      else {
+        const nextFacilities = data.facilities as Facility[];
+        setFacilities(nextFacilities);
+        if (selectNearest) {
+          setSelectedDetail(null);
+          setRoute(null);
+          setSelectedFacility(nextFacilities[0] ?? null);
+        } else {
+          setSelectedFacility((current) => current && !nextFacilities.some((facility) => facility.id === current.id) ? null : current);
+        }
+      }
       setSearched(true);
     } catch {
       if (requestId === searchSequence.current) setMessage("Unable to connect to the directory. Please try again.");
@@ -113,12 +131,36 @@ export default function Navigator() {
     setTracking(false); setLocation(point); setLocalities([]); void searchAt(point, kind);
   }
   function chooseKind(next: FacilityFilter) { setManualOverride(true); setKind(next); void searchAt(location ?? CITY, next); }
+  function choosePriority(next: Exclude<CarePriority, "emergency">) {
+    const requestedKind: FacilityFilter = next === "urgent" ? "hospital" : "clinic";
+    setCarePriority(next);
+    setManualOverride(true);
+    setKind(requestedKind);
+    void searchAt(location ?? CITY, requestedKind);
+  }
+  function findEmergencyCare() {
+    const findClosest = (point: LocationPoint) => {
+      setLocation(point);
+      setCarePriority("emergency");
+      setManualOverride(true);
+      setKind("hospital");
+      void searchAt(point, "hospital", true);
+    };
+    if (!navigator.geolocation) { findClosest(CITY); return; }
+    setBusy(true);
+    navigator.geolocation.getCurrentPosition(
+      (position) => findClosest({ lat: position.coords.latitude, lng: position.coords.longitude, accuracy: position.coords.accuracy, label: "Your current location" }),
+      () => findClosest(location ?? CITY),
+      { timeout: 8000, maximumAge: 30000, enableHighAccuracy: true },
+    );
+  }
 
   return <>
     <section className="hero"><div><span className="eyebrow">{t.eyebrow}</span><h1>{t.title}</h1><p>{t.intro}</p><div className="pills"><span>◉ Bhubaneswar only</span><span>✓ No account needed</span><span>◇ Source-backed directory</span></div></div><button className="language" onClick={() => { const next = lang === "en" ? "or" : "en"; setLang(next); document.documentElement.lang = next; }}>{lang === "en" ? "ଓଡ଼ିଆ" : "English"} ⇄</button></section>
     <div className="workspace">
-      <aside className="panel"><span className="step">01 / LOCATION</span><h2>{t.location}</h2><button className="secondary full" onClick={locate} disabled={busy}>⌖ {t.gps}</button><div className="divider">or</div><form onSubmit={(event) => { event.preventDefault(); void findLocality(); }}><label htmlFor="locality">{t.manual}</label><div className="input-row"><input id="locality" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="e.g. Unit 1, 751001" maxLength={80} /><button className="secondary" disabled={busy || query.length < 2}>Search</button></div></form>{localities.map((locality) => <button className="locality" key={locality.id} onClick={() => chooseLocality(locality)}>{locality.locality} · {locality.pincode}</button>)}{location && <p className="selected">⌖ {location.label}{tracking ? " · live" : ""}</p>}{demoMode && <><hr />
-        <span className="step">02 / SYMPTOM GUIDANCE</span><h2>{t.symptoms}</h2><p className="demo-data-notice" role="note">{DEMO_NOTICE}</p><textarea aria-label={t.symptoms} value={symptoms} onChange={(event) => { setSymptoms(event.target.value); setManualOverride(false); }} placeholder={t.placeholder} maxLength={280} />
+      <aside className="panel"><span className="step">01 / LOCATION</span><h2>{t.location}</h2><button className="secondary full" onClick={locate} disabled={busy}>⌖ {t.gps}</button><div className="divider">or</div><form onSubmit={(event) => { event.preventDefault(); void findLocality(); }}><label htmlFor="locality">{t.manual}</label><div className="input-row"><input id="locality" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="e.g. Unit 1, 751001" maxLength={80} /><button className="secondary" disabled={busy || query.length < 2}>Search</button></div></form>{localities.map((locality) => <button className="locality" key={locality.id} onClick={() => chooseLocality(locality)}>{locality.locality} · {locality.pincode}</button>)}{location && <p className="selected">⌖ {location.label}{tracking ? " · live" : ""}</p>}<hr />
+        <span className="step">02 / CARE PREFERENCE</span><h2>Who needs care?</h2><div className="choice-group"><span>Age group <em>optional</em></span><div className="choice-row" role="group" aria-label="Age group"><button type="button" className={ageGroup === "child" ? "choice active" : "choice"} onClick={() => setAgeGroup("child")}>Child</button><button type="button" className={ageGroup === "adult" ? "choice active" : "choice"} onClick={() => setAgeGroup("adult")}>Adult</button><button type="button" className={ageGroup === "senior" ? "choice active" : "choice"} onClick={() => setAgeGroup("senior")}>Senior citizen</button></div></div><div className="choice-group"><span>Gender <em>optional</em></span><div className="choice-row" role="group" aria-label="Gender"><button type="button" className={gender === "male" ? "choice active" : "choice"} onClick={() => setGender("male")}>Male</button><button type="button" className={gender === "female" ? "choice active" : "choice"} onClick={() => setGender("female")}>Female</button><button type="button" className={gender === "other" ? "choice active" : "choice"} onClick={() => setGender("other")}>Other</button></div></div><div className="choice-group"><span>How soon do you need care?</span><div className="choice-row priority-row" role="group" aria-label="Care priority"><button type="button" className={carePriority === "routine" ? "choice active" : "choice"} onClick={() => choosePriority("routine")}><strong>Routine</strong><small>Can wait</small></button><button type="button" className={carePriority === "urgent" ? "choice active" : "choice"} onClick={() => choosePriority("urgent")}><strong>Urgent</strong><small>Today</small></button></div></div><button className="emergency-search" type="button" onClick={findEmergencyCare} disabled={busy}>✚ Emergency — find closest hospital</button><p className="emergency-help">No details required. Uses your current location when permitted; otherwise it searches from central Bhubaneswar.</p>{carePriority === "emergency" && <div className="emergency-lookup" role="status"><strong>{busy ? "Finding the closest listed hospital…" : selectedFacility ? `Closest listed hospital: ${selectedFacility.name_en}` : "No listed hospital could be found."}</strong><p>Live bed, doctor and capacity availability are not tracked. For an emergency, call 108.</p></div>}<details className="optional-details"><summary>Optional details for your visit</summary><label htmlFor="condition-details">Condition details</label><textarea id="condition-details" value={conditionDetails} onChange={(event) => setConditionDetails(event.target.value)} placeholder="Add anything you want to remember" maxLength={280} /><label htmlFor="blood-type">Blood type</label><select id="blood-type" value={bloodType} onChange={(event) => setBloodType(event.target.value)}><option value="">Not specified</option><option>A+</option><option>A−</option><option>B+</option><option>B−</option><option>AB+</option><option>AB−</option><option>O+</option><option>O−</option><option>Unknown</option></select><p className="small">Optional details stay in this browser and are not sent with the search.</p></details>{demoMode && <><hr />
+        <span className="step">03 / SYMPTOM GUIDANCE</span><h2>{t.symptoms}</h2><p className="demo-data-notice" role="note">{DEMO_NOTICE}</p><textarea aria-label={t.symptoms} value={symptoms} onChange={(event) => { setSymptoms(event.target.value); setManualOverride(false); }} placeholder={t.placeholder} maxLength={280} />
         {guidance ? <div className={`guidance${guidance.urgent ? " urgent-guidance" : ""}`}><span>Possible health issue/category</span><strong>{guidance.category}</strong><span>Possible association</span><strong>{guidance.possibleConditions.join(", ")}</strong><span>Demo triage level</span><strong>{guidance.triageLevel} · {guidance.severity}</strong><span>Recommended facility</span><strong>{guidance.recommendedKind === "hospital" ? "Hospital" : guidance.recommendedKind === "clinic" ? "Clinic" : guidance.recommendedKind === "pharmacy" ? "Pharmacy" : "Diagnostic centre"}</strong><p>This is general demo navigation guidance, not a medical diagnosis.</p>{guidance.redFlags.map((flag) => <p key={flag}><strong>{flag}</strong></p>)}{guidance.triageLevel === 5 && <p className="emergency-text"><strong>108 — Emergency Ambulance Helpline.</strong> Seek emergency medical care without delay for sudden or severe symptoms.</p>}</div> : symptoms.trim().length >= 3 ? <p className="small">We could not confidently match that description. Choose a facility type below.</p> : <p className="small">Your description stays in this browser and is not saved.</p>}</>}
         <label htmlFor="facility-type">{t.override}</label><select id="facility-type" value={kind} onChange={(event) => chooseKind(event.target.value as FacilityFilter)}><option value="all">All nearby care</option><option value="hospital">Hospitals</option><option value="clinic">Clinics</option><option value="pharmacy">Pharmacies</option><option value="diagnostic">Diagnostic centres</option></select><button className="primary full" disabled={busy} onClick={() => void searchAt(location ?? CITY, kind)}>{busy ? "Loading…" : t.search} →</button><p className="small">Your precise location stays on this device and is used only to sort nearby results.</p>
       </aside>
