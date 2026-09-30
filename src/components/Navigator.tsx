@@ -46,19 +46,26 @@ export default function Navigator() {
   const [tracking, setTracking] = useState(false);
   const watchId = useRef<number | null>(null);
   const lastAutoFilter = useRef("");
+  const searchSequence = useRef(0);
   const t = copy[lang];
   const guidance = useMemo(() => demoMode ? symptomGuidance(symptoms) : null, [demoMode, symptoms]);
 
   const searchAt = useCallback(async (point: LocationPoint, requestedKind: FacilityFilter) => {
+    const requestId = ++searchSequence.current;
     setBusy(true); setMessage("");
     try {
       const response = await fetch("/api/v1/facilities/search", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ lat: point.lat, lng: point.lng, ...(requestedKind !== "all" ? { kind: requestedKind } : {}) }) });
       const data = await response.json();
+      if (requestId !== searchSequence.current) return;
       if (!response.ok) { setFacilities([]); setSelectedFacility(null); setMessage(data.error?.code === "OUTSIDE_SERVICE_AREA" ? "SwasthyaPath currently serves Bhubaneswar only." : "The directory is temporarily unavailable. Please try again."); }
       else { setFacilities(data.facilities); setSelectedFacility((current) => current && !data.facilities.some((facility: Facility) => facility.id === current.id) ? null : current); }
       setSearched(true);
-    } catch { setMessage("Unable to connect to the directory. Please try again."); }
-    finally { setBusy(false); }
+    } catch {
+      if (requestId === searchSequence.current) setMessage("Unable to connect to the directory. Please try again.");
+    }
+    finally {
+      if (requestId === searchSequence.current) setBusy(false);
+    }
   }, []);
 
   useEffect(() => { const timer = window.setTimeout(() => { void searchAt(CITY, "all"); }, 0); return () => window.clearTimeout(timer); }, [searchAt]); // City map and directory are useful before a location is chosen.
