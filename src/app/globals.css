@@ -647,6 +647,12 @@ html[data-theme="dark"] .leaflet-tile-pane { filter: brightness(.66) saturate(.7
 .guidance p { margin: 5px 0 0; font-size: 12px; line-height: 1.45; }
 .urgent-guidance { border-color: #c76b57; background: #fff3ed; }
 html[data-theme="dark"] .urgent-guidance { background: #44251e; }
+.emergency-text {
+  padding: 10px;
+  border-left: 4px solid #b85b42;
+  background: color-mix(in srgb, #b85b42 10%, transparent);
+  color: var(--ink);
+}
 .map-loading { min-height: 360px; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 16px; background: var(--surface-soft); }
 .map-legend span {
   display: flex;
@@ -685,6 +691,13 @@ html[data-theme="dark"] .urgent-guidance { background: #44251e; }
 .profile-hero > div:last-child {
   padding: clamp(28px, 5vw, 56px);
 }
+.profile-hero-image {
+  width: 100%;
+  height: 100%;
+  min-height: 300px;
+  object-fit: cover;
+  background: var(--surface-soft);
+}
 .profile-hero h1 {
   margin-bottom: 8px;
 }
@@ -702,6 +715,181 @@ html[data-theme="dark"] .urgent-guidance { background: #44251e; }
   border: 1px solid var(--line);
   border-radius: 18px;
   background: var(--surface);
+}
+.care-team-panel {
+  grid-column: 1 / -1;
+}
+.demo-data-notice {
+  margin: 0 0 18px;
+  padding: 12px 14px;
+  border: 1px solid #bd7d24;
+  border-radius: 10px;
+  background: #fff8df;
+  color: #603c0c;
+  font-size: 13px;
+  font-weight: 700;
+}
+html[data-theme="dark"] .demo-data-notice {
+  border-color: #d9a84e;
+  background: #3a2e15;
+  color: #ffe5a4;
+}
+.department-group {
+  margin: 12px 0;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  overflow: clip;
+}
+.department-group > summary {
+  display: flex;
+  min-height: 52px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  background: var(--surface-soft);
+  cursor: pointer;
+  font-weight: 750;
+}
+.department-group > summary small {
+  color: var(--muted);
+  font-weight: 600;
+}
+.specialty-group {
+  padding: 4px 16px 18px;
+}
+.specialty-group > h3 {
+  margin: 18px 0 12px;
+  font-size: 17px;
+}
+.doctor-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 14px;
+}
+.doctor-card {
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  background: var(--surface);
+}
+.doctor-heading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.doctor-heading h4,
+.doctor-heading p {
+  margin: 0;
+}
+.doctor-heading p {
+  color: var(--ink);
+  font-size: 13px;
+}
+.doctor-heading small {
+  color: var(--muted);
+}
+.doctor-photo {
+  width: 64px;
+  height: 64px;
+  flex: 0 0 64px;
+  border-radius: 16px;
+  object-fit: cover;
+  background: var(--surface-soft);
+}
+.doctor-photo.fallback {
+  display: grid;
+  place-items: center;
+  color: var(--green);
+  font-size: 24px;
+  font-weight: 750;
+}
+.demo-profile-badge {
+  display: inline-flex;
+  margin-top: 12px;
+  padding: 5px 8px;
+  border-radius: 999px;
+  background: var(--surface-soft);
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 750;
+}
+.availability-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.status-chip {
+  padding: 5px 8px;
+  border-radius: 999px;
+  background: #dff2e7;
+  color: #14593c;
+  font-weight: 750;
+}
+.status-chip.off-duty {
+  background: var(--surface-soft);
+  color: var(--muted);
+}
+html[data-theme="dark"] .status-chip:not(.off-duty) {
+  background: #214c39;
+  color: #bde9cf;
+}
+.next-opd {
+  margin: 8px 0;
+  font-size: 12px;
+}
+.doctor-facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin: 14px 0;
+}
+.doctor-facts div {
+  min-width: 0;
+  padding: 8px;
+  border-radius: 8px;
+  background: var(--paper);
+}
+.doctor-facts dt {
+  color: var(--muted);
+  font-size: 10px;
+}
+.doctor-facts dd {
+  margin: 4px 0 0;
+  overflow-wrap: anywhere;
+  font-size: 12px;
+  font-weight: 650;
+}
+.schedule-expander {
+  border-top: 1px solid var(--line);
+  padding-top: 10px;
+}
+.schedule-expander > summary {
+  min-height: 36px;
+  cursor: pointer;
+  color: var(--green);
+  font-size: 12px;
+  font-weight: 750;
+}
+.schedule-expander ol {
+  display: grid;
+  gap: 7px;
+  padding: 0;
+  list-style: none;
+}
+.schedule-expander li {
+  display: grid;
+  grid-template-columns: 75px 1fr;
+  gap: 8px;
+  font-size: 11px;
+}
+.schedule-expander li span {
+  color: var(--muted);
 }
 .profile-facts {
   display: grid;

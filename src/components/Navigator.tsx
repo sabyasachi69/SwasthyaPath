@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Facility } from "@/domain/facility";
 import { symptomGuidance, type FacilityFilter } from "@/domain/symptom-guidance";
+import { DEMO_NOTICE, demoModeEnabled } from "@/lib/demo";
 import SelectedFacility, { type FacilityDetail, type RouteInfo } from "./SelectedFacility";
 
 const CareMap = dynamic(() => import("./CareMap"), { ssr: false, loading: () => <p className="map-loading">Loading Bhubaneswar map…</p> });
@@ -27,6 +28,7 @@ function kindIcon(kind: string) {
 }
 
 export default function Navigator() {
+  const demoMode = demoModeEnabled();
   const [lang, setLang] = useState<"en" | "or">("en");
   const [query, setQuery] = useState("");
   const [localities, setLocalities] = useState<Locality[]>([]);
@@ -45,7 +47,7 @@ export default function Navigator() {
   const watchId = useRef<number | null>(null);
   const lastAutoFilter = useRef("");
   const t = copy[lang];
-  const guidance = useMemo(() => symptomGuidance(symptoms), [symptoms]);
+  const guidance = useMemo(() => demoMode ? symptomGuidance(symptoms) : null, [demoMode, symptoms]);
 
   const searchAt = useCallback(async (point: LocationPoint, requestedKind: FacilityFilter) => {
     setBusy(true); setMessage("");
@@ -108,9 +110,9 @@ export default function Navigator() {
   return <>
     <section className="hero"><div><span className="eyebrow">{t.eyebrow}</span><h1>{t.title}</h1><p>{t.intro}</p><div className="pills"><span>◉ Bhubaneswar only</span><span>✓ No account needed</span><span>◇ Source-backed directory</span></div></div><button className="language" onClick={() => { const next = lang === "en" ? "or" : "en"; setLang(next); document.documentElement.lang = next; }}>{lang === "en" ? "ଓଡ଼ିଆ" : "English"} ⇄</button></section>
     <div className="workspace">
-      <aside className="panel"><span className="step">01 / LOCATION</span><h2>{t.location}</h2><button className="secondary full" onClick={locate} disabled={busy}>⌖ {t.gps}</button><div className="divider">or</div><form onSubmit={(event) => { event.preventDefault(); void findLocality(); }}><label htmlFor="locality">{t.manual}</label><div className="input-row"><input id="locality" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="e.g. Unit 1, 751001" maxLength={80} /><button className="secondary" disabled={busy || query.length < 2}>Search</button></div></form>{localities.map((locality) => <button className="locality" key={locality.id} onClick={() => chooseLocality(locality)}>{locality.locality} · {locality.pincode}</button>)}{location && <p className="selected">⌖ {location.label}{tracking ? " · live" : ""}</p>}<hr />
-        <span className="step">02 / SYMPTOM GUIDANCE</span><h2>{t.symptoms}</h2><textarea aria-label={t.symptoms} value={symptoms} onChange={(event) => { setSymptoms(event.target.value); setManualOverride(false); }} placeholder={t.placeholder} maxLength={280} />
-        {guidance ? <div className={`guidance${guidance.urgent ? " urgent-guidance" : ""}`}><span>Possible health issue/category</span><strong>{guidance.category}</strong><span>Recommended facility</span><strong>{guidance.recommendedKind === "hospital" ? "Hospital" : guidance.recommendedKind === "clinic" ? "Clinic" : guidance.recommendedKind === "pharmacy" ? "Pharmacy" : "Diagnostic centre"}</strong><p>This is general navigation guidance, not a medical diagnosis.</p>{guidance.urgent && <p><strong>Seek emergency medical care without delay if symptoms are sudden or severe.</strong></p>}</div> : symptoms.trim().length >= 3 ? <p className="small">We could not confidently match that description. Choose a facility type below.</p> : <p className="small">Your description stays in this browser and is not saved.</p>}
+      <aside className="panel"><span className="step">01 / LOCATION</span><h2>{t.location}</h2><button className="secondary full" onClick={locate} disabled={busy}>⌖ {t.gps}</button><div className="divider">or</div><form onSubmit={(event) => { event.preventDefault(); void findLocality(); }}><label htmlFor="locality">{t.manual}</label><div className="input-row"><input id="locality" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="e.g. Unit 1, 751001" maxLength={80} /><button className="secondary" disabled={busy || query.length < 2}>Search</button></div></form>{localities.map((locality) => <button className="locality" key={locality.id} onClick={() => chooseLocality(locality)}>{locality.locality} · {locality.pincode}</button>)}{location && <p className="selected">⌖ {location.label}{tracking ? " · live" : ""}</p>}{demoMode && <><hr />
+        <span className="step">02 / SYMPTOM GUIDANCE</span><h2>{t.symptoms}</h2><p className="demo-data-notice" role="note">{DEMO_NOTICE}</p><textarea aria-label={t.symptoms} value={symptoms} onChange={(event) => { setSymptoms(event.target.value); setManualOverride(false); }} placeholder={t.placeholder} maxLength={280} />
+        {guidance ? <div className={`guidance${guidance.urgent ? " urgent-guidance" : ""}`}><span>Possible health issue/category</span><strong>{guidance.category}</strong><span>Possible association</span><strong>{guidance.possibleConditions.join(", ")}</strong><span>Demo triage level</span><strong>{guidance.triageLevel} · {guidance.severity}</strong><span>Recommended facility</span><strong>{guidance.recommendedKind === "hospital" ? "Hospital" : guidance.recommendedKind === "clinic" ? "Clinic" : guidance.recommendedKind === "pharmacy" ? "Pharmacy" : "Diagnostic centre"}</strong><p>This is general demo navigation guidance, not a medical diagnosis.</p>{guidance.redFlags.map((flag) => <p key={flag}><strong>{flag}</strong></p>)}{guidance.triageLevel === 5 && <p className="emergency-text"><strong>108 — Emergency Ambulance Helpline.</strong> Seek emergency medical care without delay for sudden or severe symptoms.</p>}</div> : symptoms.trim().length >= 3 ? <p className="small">We could not confidently match that description. Choose a facility type below.</p> : <p className="small">Your description stays in this browser and is not saved.</p>}</>}
         <label htmlFor="facility-type">{t.override}</label><select id="facility-type" value={kind} onChange={(event) => chooseKind(event.target.value as FacilityFilter)}><option value="all">All nearby care</option><option value="hospital">Hospitals</option><option value="clinic">Clinics</option><option value="pharmacy">Pharmacies</option><option value="diagnostic">Diagnostic centres</option></select><button className="primary full" disabled={busy} onClick={() => void searchAt(location ?? CITY, kind)}>{busy ? "Loading…" : t.search} →</button><p className="small">Your precise location stays on this device and is used only to sort nearby results.</p>
       </aside>
       <section className="results" aria-live="polite"><div className="results-heading"><div><span className="step">NEARBY CARE DIRECTORY</span><h2>{searched ? `${facilities.length} places found` : "Bhubaneswar care directory"}</h2></div></div>{message && <p className="notice" role="status">{message}</p>}<CareMap facilities={facilities} location={location} selectedFacility={selectedFacility} onSelect={selectFacility} onRouteInfo={routeChanged} /><SelectedFacility facility={selectedDetail} route={route} loading={Boolean(selectedFacility && !selectedDetail)} />

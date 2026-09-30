@@ -4,6 +4,37 @@ export type Practitioner = {
   display_name: string;
   specialization: string;
   qualification: string;
+  is_demo?: boolean;
+  demo_label?: string | null;
+  department_group?: string | null;
+  sub_specialty?: string | null;
+  designation?: string | null;
+  experience_years?: number | null;
+  languages?: string[] | null;
+  consultation_fee_inr?: number | null;
+  photo_path?: string | null;
+};
+
+export type PractitionerSchedule = {
+  weekday: number;
+  starts: string;
+  ends: string;
+  activity: string;
+  location: string | null;
+};
+
+export type PractitionerAvailability = {
+  current_status: string;
+  current_location: string | null;
+  current_until: string | null;
+  next_opd_at: string | null;
+  next_opd_location: string | null;
+};
+
+export type PractitionerProfile = Practitioner & {
+  email: string | null;
+  availability: PractitionerAvailability | null;
+  schedule: PractitionerSchedule[];
 };
 
 export type Facility = {

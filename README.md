@@ -18,6 +18,12 @@ SwasthyaPath is a mobile-first care navigator for Bhubaneswar, Odisha. It helps 
 4. Run `npx supabase start` and `npx supabase db reset` for the local stack. Optional synthetic seeds are disabled by default.
 5. Run `npm run dev`.
 
+To exercise fictional practitioner profiles locally, explicitly run
+`psql "$LOCAL_DATABASE_URL" -f supabase/seed/optional/002_seed_demo_practitioners.sql`
+after reset and set `NEXT_PUBLIC_DEMO_MODE=true`. The optional seed is not part
+of `supabase db reset`, CI, preview, or production. Remove it with the adjacent
+`003_remove_demo_data.sql` script.
+
 Useful checks:
 
 ```bash
