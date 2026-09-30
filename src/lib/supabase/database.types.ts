@@ -165,35 +165,65 @@ export type Database = {
       }
       facility_practitioners: {
         Row: {
+          consultation_fee_inr: number | null
+          demo_label: string | null
+          department_group: string | null
+          designation: string | null
           display_name: string
+          experience_years: number | null
           facility_id: string
+          gender: string | null
           id: string
+          is_demo: boolean
+          languages: string[] | null
+          photo_path: string | null
           published: boolean
           qualification: string
           source_id: string
           specialization: string
+          sub_specialty: string | null
           valid_until: string
           verified_at: string
         }
         Insert: {
+          consultation_fee_inr?: number | null
+          demo_label?: string | null
+          department_group?: string | null
+          designation?: string | null
           display_name: string
+          experience_years?: number | null
           facility_id: string
+          gender?: string | null
           id?: string
+          is_demo?: boolean
+          languages?: string[] | null
+          photo_path?: string | null
           published?: boolean
           qualification: string
           source_id: string
           specialization: string
+          sub_specialty?: string | null
           valid_until: string
           verified_at: string
         }
         Update: {
+          consultation_fee_inr?: number | null
+          demo_label?: string | null
+          department_group?: string | null
+          designation?: string | null
           display_name?: string
+          experience_years?: number | null
           facility_id?: string
+          gender?: string | null
           id?: string
+          is_demo?: boolean
+          languages?: string[] | null
+          photo_path?: string | null
           published?: boolean
           qualification?: string
           source_id?: string
           specialization?: string
+          sub_specialty?: string | null
           valid_until?: string
           verified_at?: string
         }
@@ -210,6 +240,61 @@ export type Database = {
             columns: ["source_id"]
             isOneToOne: false
             referencedRelation: "data_sources"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      facility_images: {
+        Row: {
+          alt_text: string
+          facility_id: string
+          id: string
+          position: number
+          public_path: string
+          published: boolean
+          rights_basis: string
+          source_url: string | null
+        }
+        Insert: {
+          alt_text: string
+          facility_id: string
+          id?: string
+          position?: number
+          public_path: string
+          published?: boolean
+          rights_basis: string
+          source_url?: string | null
+        }
+        Update: {
+          alt_text?: string
+          facility_id?: string
+          id?: string
+          position?: number
+          public_path?: string
+          published?: boolean
+          rights_basis?: string
+          source_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "facility_images_facility_id_fkey"
+            columns: ["facility_id"]
+            isOneToOne: false
+            referencedRelation: "facilities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      facility_practitioner_contacts: {
+        Row: { email: string; practitioner_id: string }
+        Insert: { email: string; practitioner_id: string }
+        Update: { email?: string; practitioner_id?: string }
+        Relationships: [
+          {
+            foreignKeyName: "facility_practitioner_contacts_practitioner_id_fkey"
+            columns: ["practitioner_id"]
+            isOneToOne: true
+            referencedRelation: "facility_practitioners"
             referencedColumns: ["id"]
           },
         ]
@@ -397,6 +482,44 @@ export type Database = {
             columns: ["source_id"]
             isOneToOne: false
             referencedRelation: "data_sources"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      practitioner_schedule: {
+        Row: {
+          activity: string
+          ends: string
+          id: string
+          location: string | null
+          practitioner_id: string
+          starts: string
+          weekday: number
+        }
+        Insert: {
+          activity: string
+          ends: string
+          id?: string
+          location?: string | null
+          practitioner_id: string
+          starts: string
+          weekday: number
+        }
+        Update: {
+          activity?: string
+          ends?: string
+          id?: string
+          location?: string | null
+          practitioner_id?: string
+          starts?: string
+          weekday?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "practitioner_schedule_practitioner_id_fkey"
+            columns: ["practitioner_id"]
+            isOneToOne: false
+            referencedRelation: "facility_practitioners"
             referencedColumns: ["id"]
           },
         ]
@@ -675,7 +798,20 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      practitioner_availability: {
+        Row: {
+          available_now_for_opd: boolean | null
+          current_activity: string | null
+          current_location: string | null
+          current_status: string | null
+          current_until: string | null
+          facility_id: string | null
+          next_opd_at: string | null
+          next_opd_location: string | null
+          practitioner_id: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       active_protocol: { Args: never; Returns: Json }
@@ -704,6 +840,20 @@ export type Database = {
         Returns: undefined
       }
       publish_revision: { Args: { p_revision: string }; Returns: undefined }
+      practitioner_availability_at: {
+        Args: { p_now?: string }
+        Returns: {
+          available_now_for_opd: boolean
+          current_activity: string | null
+          current_location: string | null
+          current_status: string
+          current_until: string | null
+          facility_id: string
+          next_opd_at: string | null
+          next_opd_location: string | null
+          practitioner_id: string
+        }[]
+      }
       release_contract: { Args: never; Returns: Json }
       restore_publication: {
         Args: { p_publication: string; p_reason: string }
